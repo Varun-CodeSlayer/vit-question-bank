@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Practice Questions · [SITE NAME]</title>
+  <meta name="description" content="Find the questions you need, organised by course and topic." />
+  <meta name="color-scheme" content="dark" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ======================================================================
+       Practice Questions — "Find questions by course" page
+       Source: Figma file QuestionsWebsite, page "Practise → Find Questions
+       by course". Desktop 1440 · Tablet 834 · Mobile 390.
+       Asset files live in ./assets (run download-assets.sh once).
+       ====================================================================== */
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    :root {
+      --text-primary: #f5f7ff;
+      --text-secondary: #9faac9;
+      --accent-cyan: #22d3ee;
+      --accent-blue: #3b82f6;
+      --card-surface: #141a33;
+      --card-name: #cfd6ed;
+      --border: rgba(169, 184, 255, 0.15);
+      --border-hover: #7b96ff;
+      --card-shadow: rgba(2, 6, 18, 0.25);
+      --hover-surface: rgba(87, 111, 220, 0.19);
+      --search-surface: rgba(18, 26, 53, 0.9);
+      --search-shadow: rgba(2, 6, 18, 0.2);
+      --search-focus-glow: rgba(99, 132, 255, 0.25);
+      --chip-surface: rgba(255, 255, 255, 0.02);
+      --nav-surface: rgba(11, 16, 32, 0.4);
+      --nav-active: rgba(119, 147, 255, 0.07);
+      --toggle-boundary: #7793c3;
+      --gradient: linear-gradient(90deg, #3b82f6 0%, #8b5cf6 56%, #22d3ee 100%);
+
+      /* responsive tokens (desktop defaults) */
+      --gutter: 64px;
+      --card-w: 205.333px;
+      --fade: 64px;
+      --grid-cols: 6;
+      --grid-gap: 16px;
+    }
+
+    html { -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+      color: var(--text-primary);
+      background: #0b1020;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; color: inherit; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+    }
+
+    .page {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #0b1020 0%, #1a1f4b 100%);
+    }
+
+    .layer { position: relative; z-index: 1; display: flex; flex-direction: column; flex: 1; }
+    main { flex: 1; }
+
+    .grad {
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    /* ---------- ambient glows ---------- */
+    .ambient { position: absolute; inset: 0; z-index: 0; overflow: clip; pointer-events: none; }
+    .ambient__blob { position: absolute; }
+    .ambient__blob::before { content: ""; position: absolute; background-repeat: no-repeat; background-size: 100% 100%; }
+    .ambient__blob--blue { left: 12%; top: 140px; width: 620px; height: 430px; }
+    .ambient__blob--blue::before {
+      left: -20.97%; top: -30.23%; width: 141.94%; height: 160.46%;
+      background-image: url("assets/ambient-glow-blue.svg");
+    }
+    .ambient__blob--violet { left: 60%; top: 220px; width: 530px; height: 430px; }
+    .ambient__blob--violet::before {
+      left: -24.53%; top: -30.23%; width: 149.06%; height: 160.46%;
+      background-image: url("assets/ambient-glow-violet.svg");
+    }
+
+    /* ======================================================================
+       Navbar
+       ====================================================================== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+      padding: 0 var(--gutter);
+      background: var(--nav-surface);
+      border-bottom: 1px solid var(--border);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand { display: flex; align-items: center; gap: 10px; flex: none; }
+
+    .brand__logo {
+      position: relative;
+      display: flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: var(--gradient);
+      box-shadow: 0 6px 24px rgba(59, 130, 246, 0.17);
+    }
+    .brand__logo .cap { width: 21.76px; height: 21.76px; }
+    .brand__logo .badge { position: absolute; right: -3px; bottom: -3px; width: 15px; height: 15px; }
+
+    .brand__name { font-size: 18px; font-weight: 700; line-height: normal; white-space: nowrap; color: var(--text-primary); }
+
+    .nav__links { display: flex; align-items: center; gap: 12px; }
+
+    .nav__link {
+      position: relative;
+      display: flex; align-items: center; gap: 10px;
+      height: 44px; padding: 0 10px;
+      border-radius: 8px;
+      font-size: 14px; font-weight: 500; white-space: nowrap;
+      color: var(--text-secondary);
+    }
+    .nav__link img { width: 18px; height: 18px; flex: none; }
+    .nav__link:hover { background: rgba(255, 255, 255, 0.04); }
+    .nav__link:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
+    .nav__link[aria-current="page"] { background: var(--nav-active); font-weight: 600; color: var(--text-primary); }
+    .nav__link[aria-current="page"]::after {
+      content: ""; position: absolute; left: 50%; bottom: 2px;
+      width: 20px; height: 2px; border-radius: 1px;
+      background: var(--accent-blue); transform: translateX(-50%);
+    }
+
+    .nav__controls { display: flex; align-items: center; justify-content: flex-end; gap: 16px; width: 157px; }
+
+    .menu-btn {
+      display: none;
+      width: 22px; height: 22px; padding: 0;
+      border: 0; background: none; cursor: pointer;
+    }
+    .menu-btn img { display: block; width: 22px; height: 22px; }
+    .menu-btn:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 4px; border-radius: 4px; }
+
+    .nav__menu {
+      display: none;
+      position: absolute; top: 100%; left: 0; right: 0;
+      flex-direction: column; gap: 4px;
+      padding: 12px var(--gutter) 16px;
+      background: rgba(11, 16, 32, 0.96);
+      border-bottom: 1px solid var(--border);
+      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(10px);
+    }
+    .nav__menu.is-open { display: flex; }
+
+    /* Scenic theme pill (visual only — the design defines the dark state) */
+    .toggle {
+      position: relative; flex: none;
+      display: block; width: 64px; height: 32px; padding: 0;
+      border: 0; background: none; border-radius: 99px;
+      transform-origin: left center;
+    }
+    .toggle:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 4px; }
+    .toggle__pill {
+      position: relative; display: flex; align-items: center;
+      width: 64px; height: 32px; padding: 3px;
+      overflow: hidden;
+      border: 1px solid var(--toggle-boundary);
+      border-radius: 16px;
+      box-shadow: 0 0 4px rgba(214, 227, 255, 0.12);
+    }
+    .toggle__pill::before {
+      content: ""; position: absolute; inset: 0; border-radius: 16px;
+      background: linear-gradient(180deg, #0b1020, #1e2559);
+    }
+    .toggle__clouds { position: absolute; left: -1px; top: 5px; width: 64px; height: 32px; opacity: 0; }
+    .toggle__clouds img { position: absolute; display: block; }
+    .toggle__stars { position: absolute; left: -1px; top: -1px; width: 64px; height: 32px; }
+    .toggle__spacer { position: relative; flex: none; width: 32px; height: 26px; }
+    .toggle__knob { position: relative; flex: none; width: 26px; height: 26px; }
+    .toggle__art { position: absolute; left: 0; top: 0; width: 26px; height: 26px; }
+    .toggle__sun, .toggle__moon { position: absolute; display: flex; align-items: center; justify-content: center; }
+    .toggle__sun { left: -5.2px; top: 5.2px; width: 26px; height: 26px; }
+    .toggle__sun > span { display: block; position: relative; width: 26px; height: 26px; transform: rotate(90deg); }
+    .toggle__moon { left: -3.66px; top: -3.66px; width: 33.325px; height: 33.325px; }
+    .toggle__moon > span { display: block; position: relative; width: 26px; height: 26px; transform: rotate(20deg); }
+    .toggle__moon img { position: absolute; display: block; max-width: none; inset: -7.31% 0 -11.54% -11.54%; width: auto; height: auto; }
+    .toggle__sun img { position: absolute; display: block; inset: 0; width: 100%; height: 100%; }
+    .toggle__edge {
+      position: absolute; left: 0; top: 0; width: 62px; height: 30px;
+      border: 1px solid rgba(232, 240, 255, 0.25); border-radius: 15px; pointer-events: none;
+    }
+    .toggle__shade {
+      position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+      box-shadow: inset 0 1px 3px rgba(11, 16, 32, 0.32);
+    }
+
+    /* ======================================================================
+       Hero
+       ====================================================================== */
+    .hero {
+      display: flex; flex-direction: column; align-items: center; gap: 32px;
+      padding: 92px var(--gutter) 40px;
+    }
+    .hero__message { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%; text-align: center; }
+    .hero__title {
+      width: 100%; max-width: 1040px; margin: 0;
+      font-size: 72px; font-weight: 700; line-height: 1.13; letter-spacing: -3.1px;
+      color: var(--text-primary);
+    }
+    .hero__lede { width: 100%; margin: 0; font-size: 20px; font-weight: 400; line-height: 1.5; color: var(--text-secondary); }
+
+    .stats { display: flex; align-items: center; justify-content: center; gap: 28px; }
+    .stat { display: flex; flex-direction: column; align-items: center; gap: 4px; white-space: nowrap; }
+    .stat__value { font-size: 36px; font-weight: 800; line-height: normal; letter-spacing: -0.7px; }
+    .stat__label { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
+    .dot { flex: none; width: 3px; height: 3px; background: url("assets/separator-dot.svg") center / 100% 100% no-repeat; }
+
+    /* ======================================================================
+       Discovery
+       ====================================================================== */
+    .discovery { display: flex; flex-direction: column; gap: 40px; padding-bottom: 64px; }
+    .content { display: flex; flex-direction: column; gap: 20px; }
+
+    .heading {
+      display: flex; align-items: center; justify-content: center; gap: 16px;
+      margin: 0; font-size: 15px; font-weight: 500; line-height: normal;
+      letter-spacing: 2px; white-space: nowrap; color: var(--text-secondary);
+    }
+    .heading__rule { flex: none; width: 40px; height: 1px; background: var(--border); }
+
+    .disclosure { margin: 0; padding-inline: var(--gutter); font-size: 12px; line-height: 1.5; text-align: center; color: var(--text-secondary); }
+    .disclosure.is-start { text-align: left; }
+
+    /* ---------- search ---------- */
+    .search-row { padding-inline: var(--gutter); }
+    .search {
+      display: flex; height: 56px; overflow: hidden; border-radius: 12px;
+      filter: drop-shadow(0 8px 12px var(--search-shadow));
+    }
+    .search__surface {
+      flex: 1; display: flex; align-items: center; gap: 12px; min-width: 0; height: 100%;
+      padding: 0 20px;
+      background: var(--search-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .search__icon { flex: none; width: 21px; height: 21px; background: url("assets/search.svg") center / 100% 100% no-repeat; }
+    .search__input {
+      flex: 1; min-width: 0; padding: 0; border: 0; outline: 0; background: transparent;
+      color: var(--text-primary);
+      font-family: inherit; font-size: 15px; font-weight: 400; line-height: 1.45;
+      -webkit-appearance: none; appearance: none;
+    }
+    .search__input::placeholder { color: var(--text-secondary); opacity: 1; }
+    .search__input::-webkit-search-cancel-button,
+    .search__input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+    .search:focus-within { padding: 2px; background: var(--gradient); filter: none; box-shadow: 0 0 24px var(--search-focus-glow); }
+    .search:focus-within .search__surface { border-color: transparent; border-radius: 10px; }
+    .search:focus-within .search__icon { background-image: url("assets/search-focus.svg"); }
+
+    /* ---------- course card ---------- */
+    .card {
+      position: relative; display: block; height: 184px; padding: 0;
+      border: 0; background: none; text-align: left; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .card__body {
+      position: relative; display: flex; flex-direction: column; gap: 12px;
+      height: 100%; padding: 20px; overflow: hidden;
+      background: var(--card-surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 4px 16px var(--card-shadow);
+      transition: transform 200ms ease-out, border-color 200ms ease-out, box-shadow 200ms ease-out;
+    }
+    .card__body > :not(.card__emphasis):not(.card__glow) { position: relative; }
+    .card__emphasis { position: absolute; inset: 0; background: var(--hover-surface); opacity: 0; transition: opacity 200ms ease-out; pointer-events: none; }
+    .card__glow { position: absolute; top: 24px; left: 50%; width: 150px; height: 130px; transform: translateX(-50%); pointer-events: none; }
+    .card__glow::before, .card__glow::after { content: ""; position: absolute; background-repeat: no-repeat; background-size: 100% 100%; transition: opacity 200ms ease-out; }
+    .card__glow::before { inset: 0; background-image: url("assets/cursor-glow.svg"); }
+    .card__glow::after { inset: -34.62% -30%; background-image: url("assets/cursor-glow-hover.svg"); opacity: 0; }
+
+    .card__code { font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 500; line-height: normal; color: var(--accent-cyan); }
+    .card__name { flex: 1 1 0; min-height: 0; font-size: 13px; font-weight: 500; line-height: 1.5; color: var(--card-name); overflow-wrap: break-word; }
+    .card__total { display: flex; align-items: baseline; gap: 6px; overflow: hidden; white-space: nowrap; }
+    .card__count { font-size: 28px; font-weight: 700; line-height: normal; letter-spacing: -0.8px; color: var(--text-primary); }
+    .card__unit { font-size: 11px; font-weight: 400; letter-spacing: 0.6px; color: var(--text-secondary); }
+
+    .card:hover .card__body { transform: translateY(-2px); border-color: var(--border-hover); box-shadow: 0 8px 24px var(--card-shadow); }
+    .card:hover .card__emphasis { opacity: 0.4; }
+    .card:hover .card__glow::after { opacity: 1; }
+    .card:hover .card__name { color: var(--text-primary); }
+    .card:hover .card__count { background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+    .card:focus { outline: none; }
+    .card::after { content: ""; position: absolute; inset: 0; border: 2px solid var(--accent-cyan); border-radius: 12px; opacity: 0; pointer-events: none; }
+    .card:focus-visible::after { opacity: 1; }
+    .card:focus-visible .card__body { transform: none; }
+
+    /* ---------- marquee ---------- */
+    .marquee { display: flex; flex-direction: column; gap: 16px; }
+    .row {
+      position: relative; overflow: hidden;
+      padding-block: 8px; margin-block: -8px; /* room for hover lift without changing layout */
+      -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%);
+      mask-image: linear-gradient(90deg, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%);
+    }
+    .track { display: flex; width: max-content; animation: marquee 60s linear infinite; }
+    .row--reverse .track { animation-direction: reverse; }
+    .row:hover .track, .row:focus-within .track { animation-play-state: paused; }
+    .set { display: flex; flex: none; gap: 16px; padding-right: 16px; }
+    .set .card { flex: 0 0 var(--card-w); width: var(--card-w); }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ---------- results / empty ---------- */
+    .results { min-height: 276px; padding-inline: var(--gutter); }
+    .grid { display: grid; grid-template-columns: repeat(var(--grid-cols), minmax(0, 1fr)); gap: var(--grid-gap); }
+    .empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 56px 0; text-align: center; }
+    .empty__title { margin: 0; font-size: 24px; font-weight: 700; line-height: normal; }
+    .empty__text { margin: 0; font-size: 14px; line-height: 1.5; color: var(--text-secondary); }
+    .chip {
+      display: inline-flex; align-items: center; height: 38px; padding: 0 16px;
+      border: 1px solid var(--border); border-radius: 12px; background: var(--chip-surface);
+      color: var(--text-primary); font-family: inherit; font-size: 13px; font-weight: 500; line-height: normal;
+      white-space: nowrap; cursor: pointer;
+    }
+    .chip:focus-visible { outline: 2px solid var(--accent-cyan); outline-offset: 2px; }
+    [hidden] { display: none !important; }
+
+    /* ======================================================================
+       Footer
+       ====================================================================== */
+    .footer {
+      background: var(--nav-surface);
+      border-top: 1px solid var(--border);
+    }
+    .fbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      row-gap: 2px;
+      align-items: center;
+      min-height: 96px;
+      padding: 12px 32px;
+    }
+    .credit { grid-area: 1 / 1 / 3 / 2; display: flex; align-items: center; gap: 12px; justify-self: start; font-size: 14px; color: var(--text-secondary); white-space: nowrap; }
+    .fbrand { grid-area: 1 / 2; display: flex; align-items: center; gap: 9px; justify-self: center; font-size: 16px; font-weight: 700; white-space: nowrap; }
+    .fbrand img { width: 26px; height: 26px; }
+    .flinks { grid-area: 2 / 2; display: flex; align-items: center; gap: 10px; justify-self: center; font-size: 12px; white-space: nowrap; }
+    .flinks a { line-height: 18px; color: var(--text-secondary); }
+    .flinks a:hover { color: var(--text-primary); }
+    .flinks a:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; border-radius: 2px; }
+    .flinks s { text-decoration: none; color: var(--border); }
+    .copy { grid-area: 3 / 1 / 4 / 4; margin: 6px 0 0; font-size: 12px; line-height: 1.5; text-align: center; color: var(--text-secondary); opacity: 0.5; }
+
+    .portrait { position: relative; flex: none; width: 40px; height: 40px; }
+    .portrait__glow { position: absolute; inset: 0; }
+    .portrait__glow img { position: absolute; left: -17.5%; top: -17.5%; width: 135%; height: 135%; max-width: none; }
+    .portrait__crop { position: absolute; left: 2px; top: 2px; width: 36px; height: 36px; overflow: hidden; border-radius: 999px; }
+    .portrait__crop img { position: absolute; left: -42.98px; top: -38.48px; width: 110.88px; height: 147.84px; max-width: none; object-fit: cover; }
+    .portrait__ring { position: absolute; inset: 0; }
+    .portrait__ring img { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; }
+
+    /* ======================================================================
+       Tablet (834 frame): collapsed navigation, 3-column grid
+       ====================================================================== */
+    @media (max-width: 1023px) {
+      :root { --gutter: 48px; --card-w: 235.333px; --fade: 56px; --grid-cols: 3; }
+
+      .nav__links { display: none; }
+      .nav__controls { width: auto; }
+      .menu-btn { display: block; }
+      .toggle { width: 56px; height: 28px; }
+      .toggle__pill { transform: scale(0.875); transform-origin: top left; }
+
+      .hero__title { font-size: 56px; }
+
+      .fbar { grid-template-columns: 1fr auto 1fr; row-gap: 16px; padding: 24px 32px; min-height: 160px; }
+      .credit { grid-area: 1 / 1; }
+      .fbrand { grid-area: 1 / 2; }
+      .flinks { grid-area: 2 / 1 / 3 / 4; }
+      .copy { grid-area: 3 / 1 / 4 / 4; margin-top: 0; }
+    }
+
+    /* ======================================================================
+       Mobile (390 frame): 2-column grid
+       ====================================================================== */
+    @media (max-width: 639px) {
+      :root { --gutter: 24px; --card-w: 165px; --fade: 40px; --grid-cols: 2; --grid-gap: 12px; }
+
+      .ambient__blob--blue { left: -190px; width: 420px; }
+      .ambient__blob--blue::before { left: -30.95%; width: 161.9%; background-image: url("assets/ambient-glow-blue-mobile.svg"); }
+      .ambient__blob--violet { left: 234px; width: 390px; }
+      .ambient__blob--violet::before { left: -33.33%; width: 166.66%; background-image: url("assets/ambient-glow-violet-mobile.svg"); }
+
+      .hero { gap: 24px; padding-top: 48px; padding-bottom: 32px; }
+      .hero__message { gap: 16px; }
+      .hero__title { font-size: 38px; letter-spacing: -1.7px; }
+      .hero__lede { font-size: 16px; }
+      .stats { gap: 10px; }
+      .stat__value { font-size: 28px; }
+      .stat__label { font-size: 12px; }
+
+      .discovery { gap: 28px; padding-bottom: 48px; }
+      .search__surface { padding: 0 15px; }
+      .search__input { font-size: 12px; }
+      .heading { gap: 12px; font-size: 14px; }
+      .heading__rule { width: 28px; }
+      .card__body { padding: 16px; }
+      .results { min-height: 252px; }
+
+      .fbar { display: flex; flex-direction: column; align-items: center; gap: 20px; min-height: 240px; padding: 32px 24px; }
+      .credit { display: none; }
+      .copy { margin-top: 0; }
+    }
+
+    /* ======================================================================
+       Reduced motion: no loop and no lift; rows scroll by hand.
+       ====================================================================== */
+    @media (prefers-reduced-motion: reduce) {
+      .track { animation: none; }
+      .row { overflow-x: auto; scrollbar-width: thin; }
+      .set[inert] { display: none; }
+      .card__body, .card__emphasis, .card__glow::before, .card__glow::after { transition: none; }
+      .card:hover .card__body { transform: none; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="ambient" aria-hidden="true">
+      <div class="ambient__blob ambient__blob--blue"></div>
+      <div class="ambient__blob ambient__blob--violet"></div>
+    </div>
+
+    <div class="layer">
+      <!-- ============================ NAVBAR ============================ -->
+      <header class="nav" id="top">
+        <a class="brand" href="/" aria-label="[SITE NAME] home">
+          <span class="brand__logo">
+            <img class="cap" src="assets/graduation-cap.svg" alt="" />
+            <img class="badge" src="assets/check-badge.svg" alt="" />
+          </span>
+          <span class="brand__name">[SITE NAME]</span>
+        </a>
+
+        <nav class="nav__links" aria-label="Primary">
+          <a class="nav__link" href="/"><img src="assets/house.svg" alt="" />Home</a>
+          <a class="nav__link" href="/practice" aria-current="page"><img src="assets/book-open.svg" alt="" />Practice Questions</a>
+          <a class="nav__link" href="/papers"><img src="assets/files.svg" alt="" />Papers</a>
+          <a class="nav__link" href="/syllabus"><img src="assets/book-marked.svg" alt="" />Syllabus</a>
+        </nav>
+
+        <div class="nav__controls">
+          <!-- Visual state only: the design defines the dark theme. -->
+          <button class="toggle" type="button" role="switch" aria-checked="true" aria-disabled="true"
+                  aria-label="Dark mode (theme switching is not connected)">
+            <span class="toggle__pill">
+              <span class="toggle__clouds" aria-hidden="true">
+                <img src="assets/toggle-cloud-1.svg" alt="" style="left:35px;top:23px;width:16px;height:8px" />
+                <img src="assets/toggle-cloud-2.svg" alt="" style="left:46px;top:19px;width:19px;height:10px" />
+                <img src="assets/toggle-cloud-3.svg" alt="" style="left:57px;top:25px;width:13px;height:7px" />
+              </span>
+              <img class="toggle__stars" src="assets/toggle-stars.svg" alt="" />
+              <span class="toggle__spacer"></span>
+              <span class="toggle__knob">
+                <span class="toggle__art">
+                  <span class="toggle__sun"><span><img src="assets/toggle-sun.svg" alt="" /></span></span>
+                  <span class="toggle__moon"><span><img src="assets/toggle-moon.svg" alt="" /></span></span>
+                </span>
+              </span>
+              <span class="toggle__edge"></span>
+              <span class="toggle__shade"></span>
+            </span>
+          </button>
+
+          <button class="menu-btn" type="button" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="navMenu">
+            <img src="assets/menu.svg" alt="" />
+          </button>
+        </div>
+
+        <!-- Collapsed navigation panel (tablet and mobile). The design shows only the menu icon. -->
+        <nav class="nav__menu" id="navMenu" aria-label="Primary">
+          <a class="nav__link" href="/"><img src="assets/house.svg" alt="" />Home</a>
+          <a class="nav__link" href="/practice" aria-current="page"><img src="assets/book-open.svg" alt="" />Practice Questions</a>
+          <a class="nav__link" href="/papers"><img src="assets/files.svg" alt="" />Papers</a>
+          <a class="nav__link" href="/syllabus"><img src="assets/book-marked.svg" alt="" />Syllabus</a>
+        </nav>
+      </header>
+
+      <main>
+        <!-- ============================= HERO ============================= -->
+        <section class="hero" aria-labelledby="heroTitle">
+          <div class="hero__message">
+            <h1 class="hero__title" id="heroTitle">
+              Every <span class="grad">question</span>. Every <span class="grad">topic</span>. Every <span class="grad">course</span>.
+            </h1>
+            <p class="hero__lede">Find the questions you need, organised by course and topic.</p>
+          </div>
+          <div class="stats">
+            <div class="stat"><span class="stat__value grad">474</span><span class="stat__label">COURSES</span></div>
+            <span class="dot" aria-hidden="true"></span>
+            <div class="stat"><span class="stat__value grad">3,153</span><span class="stat__label">PAPERS</span></div>
+            <span class="dot" aria-hidden="true"></span>
+            <div class="stat"><span class="stat__value grad">12,400</span><span class="stat__label">QUESTIONS</span></div>
+          </div>
+        </section>
+
+        <!-- ========================= DISCOVERY ============================ -->
+        <section class="discovery" aria-label="Course discovery">
+          <div class="search-row">
+            <div class="search">
+              <div class="search__surface">
+                <span class="search__icon" aria-hidden="true"></span>
+                <input id="courseSearch" class="search__input" type="search" name="course-search"
+                       autocomplete="off" spellcheck="false"
+                       placeholder="Search course, topic or code..."
+                       aria-label="Search courses by name or code" />
+              </div>
+            </div>
+          </div>
+
+          <div class="content">
+            <h2 class="heading" id="heading" aria-live="polite">
+              <span class="heading__rule" aria-hidden="true"></span>
+              <span id="headingText">MOST PRACTISED</span>
+              <span class="heading__rule" aria-hidden="true"></span>
+            </h2>
+
+            <!-- Default state: two-row marquee (filled by script) -->
+            <div class="marquee" id="marquee"></div>
+
+            <!-- Search states: results grid / empty -->
+            <div class="results" id="results" hidden>
+              <div class="grid" id="grid"></div>
+              <div class="empty" id="empty" hidden>
+                <h3 class="empty__title">No courses found</h3>
+                <p class="empty__text">Try a different course name, code or topic.</p>
+                <button type="button" class="chip" id="clearBtn">Clear search</button>
+              </div>
+            </div>
+
+            <p class="disclosure" id="disclosure">Demonstration data — not live counts.</p>
+          </div>
+        </section>
+      </main>
+
+      <!-- ============================ FOOTER ============================ -->
+      <footer class="footer">
+        <div class="fbar">
+          <div class="credit">
+            <span class="portrait" role="img" aria-label="Photo of Varun">
+              <span class="portrait__glow"><img src="assets/portrait-glow.svg" alt="" /></span>
+              <span class="portrait__crop"><img src="assets/portrait.png" alt="" /></span>
+              <span class="portrait__ring"><img src="assets/portrait-ring.svg" alt="" /></span>
+            </span>
+            Made by Varun
+          </div>
+          <div class="fbrand"><img src="assets/site-logo.svg" alt="" />[SITE NAME]</div>
+          <div class="flinks">
+            <a href="#">Privacy</a><s>|</s><a href="#">Terms</a><s>|</s><a href="#">Contact</a><s>|</s><a href="#">Report an Issue</a>
+          </div>
+          <p class="copy">(c) 2026 [SITE NAME]. Not affiliated with VIT. Question papers belong to their respective owners.</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      /* Demonstration data from the design — not live counts. */
+      var COURSES = [
+        { code: "BMAT201L", name: "Complex Variables and Linear Algebra", count: 76 },
+        { code: "BCSE384L", name: "Theory of Computation", count: 27 },
+        { code: "BMAT101L", name: "Calculus", count: 61 },
+        { code: "BGER101L", name: "German I", count: 34 },
+        { code: "BCSE355L", name: "AWS Solutions Architect", count: 23 },
+        { code: "BCSE202L", name: "Data Structures and Algorithms", count: 47 },
+        { code: "BCSE303L", name: "Operating Systems", count: 25 },
+        { code: "BCSE102L", name: "Structured and Object-Oriented Programming", count: 51 },
+        { code: "BPHY101L", name: "Engineering Physics", count: 76 },
+        { code: "BCSE204L", name: "Design and Analysis of Algorithms", count: 44 },
+        { code: "BMEE209L", name: "Materials Science and Engineering", count: 19 },
+        { code: "BMAT102L", name: "Differential Equations and Transforms", count: 60 }
+      ];
+
+      var input = document.getElementById("courseSearch");
+      var headingText = document.getElementById("headingText");
+      var marquee = document.getElementById("marquee");
+      var results = document.getElementById("results");
+      var grid = document.getElementById("grid");
+      var empty = document.getElementById("empty");
+      var disclosure = document.getElementById("disclosure");
+      var clearBtn = document.getElementById("clearBtn");
+
+      function makeCard(course, decorative) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "card";
+        if (decorative) btn.tabIndex = -1;
+        btn.innerHTML =
+          '<span class="card__body">' +
+            '<span class="card__emphasis" aria-hidden="true"></span>' +
+            '<span class="card__glow" aria-hidden="true"></span>' +
+            '<span class="card__code"></span>' +
+            '<span class="card__name"></span>' +
+            '<span class="card__total"><span class="card__count"></span><span class="card__unit">QUESTIONS</span></span>' +
+          '</span>';
+        btn.querySelector(".card__code").textContent = course.code;
+        btn.querySelector(".card__name").textContent = course.name;
+        btn.querySelector(".card__count").textContent = String(course.count);
+        // Course navigation is not designed yet: hook it up here when the route exists.
+        return btn;
+      }
+
+      function makeSet(list, duplicate) {
+        var set = document.createElement("div");
+        set.className = "set";
+        if (duplicate) { set.setAttribute("aria-hidden", "true"); set.inert = true; }
+        list.forEach(function (c) { set.appendChild(makeCard(c, duplicate)); });
+        return set;
+      }
+
+      function makeRow(list, reverse, label) {
+        var row = document.createElement("div");
+        row.className = "row" + (reverse ? " row--reverse" : "");
+        row.setAttribute("role", "group");
+        row.setAttribute("aria-label", label);
+        var track = document.createElement("div");
+        track.className = "track";
+        /* Two identical sets; the track translates -50% for a seamless loop. */
+        track.appendChild(makeSet(list, false));
+        track.appendChild(makeSet(list, true));
+        row.appendChild(track);
+        return row;
+      }
+
+      function buildMarquee() {
+        var half = Math.floor(COURSES.length / 2);
+        var rowTwo = COURSES.slice(half).concat(COURSES.slice(0, half));
+        marquee.appendChild(makeRow(COURSES, false, "Most practised courses, row 1"));
+        marquee.appendChild(makeRow(rowTwo, true, "Most practised courses, row 2"));
+      }
+
+      function render() {
+        var q = input.value.trim().toLowerCase();
+        var searching = q.length > 0;
+
+        marquee.hidden = searching;
+        results.hidden = !searching;
+        disclosure.classList.toggle("is-start", searching);
+
+        if (!searching) {
+          headingText.textContent = "MOST PRACTISED";
+          return;
+        }
+
+        var matches = COURSES.filter(function (c) {
+          return c.code.toLowerCase().indexOf(q) !== -1 || c.name.toLowerCase().indexOf(q) !== -1;
+        });
+
+        headingText.textContent = matches.length + " matching " + (matches.length === 1 ? "course" : "courses");
+
+        grid.textContent = "";
+        matches.forEach(function (c) { grid.appendChild(makeCard(c, false)); });
+        grid.hidden = matches.length === 0;
+        empty.hidden = matches.length !== 0;
+      }
+
+      input.addEventListener("input", render);
+      clearBtn.addEventListener("click", function () {
+        input.value = "";
+        render();
+        input.focus();
+      });
+
+      buildMarquee();
+      render();
+
+      /* Collapsed navigation (tablet / mobile) */
+      var menuBtn = document.getElementById("menuBtn");
+      var navMenu = document.getElementById("navMenu");
+
+      function setMenu(open) {
+        navMenu.classList.toggle("is-open", open);
+        menuBtn.setAttribute("aria-expanded", String(open));
+        menuBtn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      }
+
+      menuBtn.addEventListener("click", function () {
+        setMenu(!navMenu.classList.contains("is-open"));
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && navMenu.classList.contains("is-open")) {
+          setMenu(false);
+          menuBtn.focus();
+        }
+      });
+      window.addEventListener("resize", function () {
+        if (window.innerWidth > 1023) setMenu(false);
+      });
+    })();
+  </script>
+</body>
+</html>

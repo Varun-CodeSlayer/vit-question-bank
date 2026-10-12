@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Theory of Computation · Question Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- Design tokens (mirrors the Figma Theme collection) ---------- */
+:root{
+  --bg0:#0b1020; --bg1:#1a1f4b;
+  --surface:#141a37; --chip:rgba(99,131,255,.06); --border:rgba(169,184,255,.15);
+  --border-hover:#7b96ff; --hover-fill:rgba(87,111,220,.19);
+  --glass:rgba(20,26,55,.9);
+  --t1:#f5f7ff; --t2:#9faac9; --t3:#cfd6ed;
+  --code:#22d3ee; --accent:#3b82f6; --accent-soft:rgba(59,130,246,.14); --accent-text:#93b4ff; --focus:#22d3ee;
+  --green:#3ddba0; --yellow:#fbbf24; --purple:#a78bfa;
+  --divider:rgba(169,184,255,.15);
+  --shadow:0 12px 32px rgba(3,9,36,.45);
+  --grad:linear-gradient(90deg,#3b82f6,#8b5cf6 55%,#22d3ee);
+  --radius:14px; --pad:64px;
+}
+[data-theme="light"]{
+  --bg0:#f4f6ff; --bg1:#e3e8ff;
+  --surface:#ffffff; --chip:rgba(59,90,220,.05); --border:rgba(40,60,140,.16);
+  --border-hover:#4565e8; --hover-fill:rgba(69,101,232,.09);
+  --glass:rgba(255,255,255,.92);
+  --t1:#0d1330; --t2:#55608a; --t3:#2a3358;
+  --code:#0e7490; --accent:#3b5bdb; --accent-soft:rgba(59,91,219,.1); --accent-text:#2f4bc4; --focus:#0e7490;
+  --green:#0f9d6a; --yellow:#b7791f; --purple:#6d4fd6;
+  --divider:rgba(40,60,140,.14);
+  --shadow:0 12px 28px rgba(40,60,140,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--t1);background:linear-gradient(180deg,var(--bg0),var(--bg1)) fixed;min-height:100vh;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(620px 430px at 12% 8%,rgba(59,130,246,.16),transparent 70%),radial-gradient(530px 430px at 82% 14%,rgba(139,92,246,.14),transparent 70%)}
+[data-theme="light"] body::before{opacity:.5}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+svg{flex:none}
+.ic{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mono{font-family:"JetBrains Mono",ui-monospace,monospace}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:0 var(--pad)}
+
+/* ---------- Navbar ---------- */
+.nav{position:sticky;top:0;z-index:50;height:72px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--bg0) 82%,transparent);backdrop-filter:blur(14px)}
+.nav-in{height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;letter-spacing:-.2px}
+.logo{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:grid;place-items:center;color:#fff}
+.nav-links{display:flex;gap:6px}
+.nav-links a{position:relative;display:flex;align-items:center;gap:8px;height:44px;padding:0 16px;border-radius:12px;font-size:14px;font-weight:500;color:var(--t2);transition:background .2s,color .2s}
+.nav-links a:hover{background:var(--hover-fill);color:var(--t1)}
+.nav-links a[aria-current="page"]{background:var(--chip);color:var(--t1);font-weight:600}
+.nav-links a[aria-current="page"]::after{content:"";position:absolute;left:50%;bottom:2px;width:20px;height:2px;margin-left:-10px;border-radius:2px;background:var(--accent)}
+.nav-tools{display:flex;align-items:center;gap:10px}
+.theme{width:56px;height:30px;border-radius:15px;border:1px solid var(--border);background:var(--chip);position:relative;transition:border-color .2s}
+.theme:hover{border-color:var(--border-hover)}
+.theme span{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--accent);display:grid;place-items:center;transition:transform .25s}
+[data-theme="light"] .theme span{transform:translateX(26px)}
+.burger{display:none;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);place-items:center}
+
+/* ---------- Header ---------- */
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:40px;font-size:13px;font-weight:500;color:var(--t2)}
+.crumbs a:hover{color:var(--t1)}
+.crumbs [aria-current]{color:var(--t1)}
+.crumbs .ic{width:14px;height:14px}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:32px;padding-top:20px}
+.head-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:12px}
+.overline{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:500;letter-spacing:1.7px;text-transform:uppercase;color:var(--code)}
+h1{font-size:48px;line-height:1.1;font-weight:700;letter-spacing:-1.6px}
+h1.topic{font-size:44px;letter-spacing:-1.4px}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 16px;font-size:13px;color:var(--t2)}
+.meta span.m{display:flex;align-items:center;gap:6px}
+.ic.s{width:14px;height:14px}
+.stats{display:flex;align-items:center;gap:28px}
+.stat b{display:block;font-size:36px;line-height:1.2;font-weight:800;letter-spacing:-.7px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat small{font-size:14px;color:var(--t2);letter-spacing:.2px}
+.dot{width:3px;height:3px;border-radius:50%;background:var(--t2);opacity:.5}
+
+/* tags + badges */
+.tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;font-size:12px;color:var(--t3);border:1px solid var(--border);background:rgba(255,255,255,.02);white-space:nowrap}
+.tag.code{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:13px;color:var(--code);background:var(--chip)}
+.tag.accent{color:var(--accent-text);border-color:var(--accent);background:var(--accent-soft)}
+.badge{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 8px;border-radius:6px;font-size:12px;white-space:nowrap;border:1px solid}
+.badge .ic{width:12px;height:12px}
+.badge.Current{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent);border-color:color-mix(in srgb,var(--green) 50%,transparent)}
+.badge.Older{color:var(--yellow);background:color-mix(in srgb,var(--yellow) 14%,transparent);border-color:color-mix(in srgb,var(--yellow) 50%,transparent)}
+.badge.Unmapped{color:var(--purple);background:color-mix(in srgb,var(--purple) 14%,transparent);border-color:color-mix(in srgb,var(--purple) 50%,transparent)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:38px;padding:0 16px;border-radius:12px;font-size:13px;font-weight:500;white-space:nowrap;border:1px solid var(--border);background:var(--chip);transition:border-color .2s,background .2s,box-shadow .2s}
+.btn:hover{border-color:var(--border-hover);background:var(--hover-fill)}
+.btn.accent{color:var(--accent-text);border-color:var(--accent);background:var(--accent-soft)}
+.btn.accent:hover{box-shadow:0 0 0 4px var(--accent-soft)}
+.btn[disabled]{opacity:.5;cursor:not-allowed;background:transparent}
+.btn[disabled]:hover{border-color:var(--border);background:transparent}
+.link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--accent-text);border-radius:6px}
+.link:hover{text-decoration:underline}
+
+/* ---------- Toolbar ---------- */
+.toolbar{padding-top:32px;display:flex;flex-direction:column;gap:14px}
+.search{position:relative;display:flex;align-items:center;gap:12px;height:56px;padding:0 20px;border-radius:12px;border:1px solid var(--border);background:var(--glass);box-shadow:0 10px 24px rgba(3,9,36,.25);transition:border-color .2s,box-shadow .2s}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft),0 0 24px rgba(99,132,255,.25)}
+.search .ic{width:20px;height:20px;color:var(--t2)}
+.search input{flex:1;min-width:0;height:100%;background:none;border:0;outline:0;color:var(--t1);font:inherit;font-size:15px}
+.search input::placeholder{color:var(--t2)}
+.kbd{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--t2);border:1px solid var(--border);border-radius:6px;padding:1px 7px}
+.clear-q{display:none;width:28px;height:28px;border-radius:50%;place-items:center;color:var(--t2)}
+.clear-q:hover{background:var(--hover-fill);color:var(--t1)}
+.search.has-q .clear-q{display:grid}.search.has-q .kbd{display:none}
+.ftrigs{display:grid;grid-template-columns:repeat(7,1fr);gap:12px}
+.fgroup{position:relative}
+.ftrig{width:100%;height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;border-radius:12px;border:1px solid var(--border);background:var(--glass);font-size:13px;font-weight:500;color:var(--t2);text-align:left;transition:border-color .2s,color .2s,box-shadow .2s}
+.ftrig span.l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ftrig:hover{border-color:var(--border-hover);color:var(--t1)}
+.ftrig[aria-expanded="true"]{border-color:var(--accent);color:var(--t1);box-shadow:0 0 0 3px var(--accent-soft)}
+.ftrig.on{color:var(--t1);border-color:var(--accent);background:var(--accent-soft)}
+.cnt{min-width:19px;height:18px;padding:0 6px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;display:grid;place-items:center}
+.pop{position:absolute;z-index:40;top:calc(100% + 8px);left:0;width:280px;max-width:calc(100vw - 32px);padding:8px;border-radius:12px;border:1px solid var(--border-hover);background:var(--surface);box-shadow:var(--shadow)}
+.fgroup:nth-child(n+5) .pop{left:auto;right:0}
+.pop h4{padding:6px 10px;font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2)}
+.fopt{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--t3);cursor:pointer}
+.fopt:hover{background:var(--hover-fill)}
+.fopt input{position:absolute;opacity:0}
+.box{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border-hover);display:grid;place-items:center;color:#fff}
+.box .ic{width:11px;height:11px;stroke-width:3;opacity:0}
+.fopt input:checked+.box{background:var(--accent);border-color:var(--accent)}
+.fopt input:checked+.box .ic{opacity:1}
+.fopt input:focus-visible+.box{outline:2px solid var(--focus);outline-offset:2px}
+.fopt .n{margin-left:auto;font-size:12px;color:var(--t2);font-weight:400}
+.fopt.dis{opacity:.45;cursor:not-allowed}.fopt.dis:hover{background:none}
+.pop .note{display:flex;gap:8px;padding:10px 10px 6px;margin-top:6px;border-top:1px solid var(--divider);font-size:12px;line-height:1.5;color:var(--t2)}
+.fbtn{display:none}
+.chips{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:32px}
+.chips .lbl{font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 8px 0 12px;border-radius:8px;border:1px solid var(--accent);background:var(--accent-soft);font-size:13px;transition:background .2s}
+.chip:hover{background:var(--hover-fill)}
+.chip em{font-style:normal;color:var(--t2)}.chip b{font-weight:500;color:var(--accent-text)}
+.chip .ic{width:14px;height:14px}
+.status{font-size:13px;color:var(--t2)}
+
+/* ---------- Columns ---------- */
+.cols{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:32px;padding:32px 0 72px;align-items:start}
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:96px}
+.sec-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.sec-h h2{font-size:18px;font-weight:600;letter-spacing:-.2px}
+.sec-h small{font-size:13px;color:var(--t2);margin-left:12px;font-weight:400}
+.panel{padding:20px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:14px}
+.panel h3{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600}
+.panel p{font-size:13px;line-height:1.55;color:var(--t2)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--t2)}
+.row b{font-size:14px;color:var(--t1);font-weight:600}
+.row small{font-size:12px;color:var(--t2)}
+hr{border:0;height:1px;background:var(--divider)}
+.pnote{display:flex;gap:6px;align-items:center;font-size:12px;color:var(--t2)}
+
+/* ---------- Modules ---------- */
+.mods{display:flex;flex-direction:column;gap:12px}
+.mod{border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);overflow:hidden;transition:border-color .2s}
+.mod.open{border-color:var(--border-hover)}
+.mod.zero .mh{opacity:.6}
+.mh{width:100%;display:flex;align-items:center;gap:16px;padding:20px;text-align:left;transition:background .2s}
+.mh:hover{background:var(--hover-fill)}
+.mh:focus-visible{outline-offset:-3px}
+.mnum{width:44px;height:44px;border-radius:12px;border:1px solid var(--accent);background:var(--accent-soft);display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:500;font-size:13px;color:var(--code)}
+.mcopy{flex:1;min-width:0}
+.mcopy strong{display:block;font-size:18px;font-weight:700;letter-spacing:-.2px;line-height:1.35}
+.mcopy small{font-size:13px;color:var(--t2)}
+.mtot{display:flex;align-items:baseline;gap:6px}
+.mtot b{font-size:24px;font-weight:700}.mtot small{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--t2)}
+.tgl{width:32px;height:32px;border-radius:50%;border:1px solid var(--border);display:grid;place-items:center;background:var(--chip);transition:transform .25s,background .2s,border-color .2s}
+.mod.open .tgl{background:var(--accent-soft);border-color:var(--accent);transform:rotate(180deg)}
+.panelwrap{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .28s ease,visibility 0s .28s}
+.mod.open .panelwrap{grid-template-rows:1fr;visibility:visible;transition:grid-template-rows .28s ease,visibility 0s}
+.panelwrap>div{overflow:hidden;min-height:0}
+.topics{border-top:1px solid var(--divider);padding:12px;display:flex;flex-direction:column;gap:4px}
+.trow{position:relative;display:flex;align-items:center;gap:14px;min-height:52px;padding:8px 16px;border-radius:10px;text-align:left;width:100%;transition:background .15s}
+.trow .ix{font-family:"JetBrains Mono",monospace;font-weight:500;font-size:13px;color:var(--t2)}
+.trow .tt{flex:1;font-size:14px;font-weight:500;color:var(--t3)}
+.trow .tc{font-size:13px;color:var(--t2);white-space:nowrap}
+.trow .act{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--accent-text);width:16px;overflow:hidden;white-space:nowrap;transition:width .2s}
+.trow .act span{opacity:0;transition:opacity .15s}
+.trow:hover,.trow:focus-visible{background:var(--hover-fill)}
+.trow:hover .tt,.trow:focus-visible .tt{color:var(--t1)}
+.trow:hover .act,.trow:focus-visible .act{width:112px}
+.trow:hover .act span,.trow:focus-visible .act span{opacity:1}
+.trow:hover::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:2px;background:var(--accent)}
+.trow:focus-visible{outline:2px solid var(--focus);outline-offset:-2px}
+.trow.zero .tt,.trow.zero .tc{opacity:.55}
+
+/* ---------- Questions ---------- */
+.qlist{display:flex;flex-direction:column;gap:16px}
+.qcard{--mx:50%;--my:30%;position:relative;overflow:hidden;padding:24px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:16px;transition:border-color .2s,box-shadow .2s,transform .2s,background .2s}
+.qcard::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .2s;background:radial-gradient(260px circle at var(--mx) var(--my),rgba(99,131,255,.2),transparent 65%)}
+.qcard:hover{border-color:var(--border-hover);background:color-mix(in srgb,var(--surface) 80%,var(--hover-fill));box-shadow:var(--shadow);transform:translateY(-2px)}
+.qcard:hover::before{opacity:1}
+.qcard>*{position:relative}
+.qh{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.qh .sp{flex:1}
+.qtext{font-size:16px;line-height:1.6;color:var(--t1);max-width:76ch}
+.qimg{display:grid;place-items:center;gap:6px;padding:16px;min-height:176px;border-radius:10px;border:1px dashed var(--border);background:var(--chip);text-align:center;font-size:13px;color:var(--t2)}
+.qmeta{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:13px;color:var(--t2)}
+.qmeta span{display:flex;align-items:center;gap:6px}
+.qf{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.src{display:flex;align-items:center;gap:8px;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--t2);word-break:break-all}
+.acts{display:flex;gap:10px;flex-wrap:wrap}
+.more{display:flex;flex-direction:column;align-items:center;gap:14px;padding:16px 0}
+.bar{width:180px;height:4px;border-radius:2px;background:var(--divider);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad);border-radius:2px;transition:width .3s}
+
+/* ---------- Empty ---------- */
+.empty{padding:48px 24px;border-radius:var(--radius);border:1px dashed var(--border);background:var(--surface);display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center}
+.empty .oc{width:48px;height:48px;border-radius:50%;border:1px solid var(--border-hover);display:grid;place-items:center;color:var(--t2)}
+.empty h3{font-size:18px;font-weight:700;letter-spacing:-.2px}
+.empty p{max-width:46ch;font-size:14px;color:var(--t2)}
+.empty .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.demo{font-size:12px;color:var(--t2);padding-top:16px}
+
+/* ---------- Footer ---------- */
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:28px 0;font-size:13px;color:var(--t2)}
+.foot{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.foot nav{display:flex;gap:18px}.foot a:hover{color:var(--t1)}
+
+/* ---------- Drawer ---------- */
+.ov{position:fixed;inset:0;z-index:80;background:rgba(3,6,18,.6);opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.show{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:90;max-height:88vh;display:flex;flex-direction:column;border-radius:20px 20px 0 0;border:1px solid var(--border-hover);border-bottom:0;background:var(--surface);transform:translateY(100%);transition:transform .3s ease;visibility:hidden}
+.sheet.show{transform:none;visibility:visible}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--divider);margin:10px auto 0}
+.sh-h{display:flex;align-items:center;justify-content:space-between;padding:12px 20px}
+.sh-h h2{font-size:18px;font-weight:700}
+.sh-b{overflow:auto;padding:4px 20px 12px;display:flex;flex-direction:column;gap:20px}
+.sh-b h4{font-size:11px;font-weight:500;letter-spacing:1.2px;text-transform:uppercase;color:var(--t2);margin-bottom:10px}
+.ochips{display:flex;flex-wrap:wrap;gap:8px}
+.och{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--border);background:var(--chip);font-size:13px;font-weight:500;transition:border-color .2s}
+.och[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent-text)}
+.och[disabled]{opacity:.4;cursor:not-allowed}
+.sh-f{display:flex;gap:10px;padding:14px 20px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--divider)}
+.sh-f .btn{height:44px;flex:1}
+.menu{display:none}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1180px){
+  :root{--pad:48px}
+  .cols{grid-template-columns:minmax(0,1fr)}
+  .side{position:static}
+  .ftrigs{grid-template-columns:repeat(4,1fr)}
+  .head{flex-direction:column;align-items:flex-start}
+  h1{font-size:40px}h1.topic{font-size:36px}
+}
+@media (max-width:860px){
+  .nav-links{display:none}
+  .burger{display:grid}
+  .menu.show{display:flex;flex-direction:column;gap:4px;padding:12px var(--pad);border-bottom:1px solid var(--border);background:var(--bg0);position:sticky;top:72px;z-index:49}
+  .menu a{display:flex;align-items:center;gap:10px;height:44px;padding:0 12px;border-radius:10px;font-size:14px;font-weight:500;color:var(--t2)}
+  .menu a[aria-current]{background:var(--chip);color:var(--t1)}
+}
+@media (max-width:700px){
+  :root{--pad:24px}
+  h1{font-size:30px;letter-spacing:-1px}h1.topic{font-size:28px}
+  .crumbs{padding-top:24px}
+  .stats{gap:18px;width:100%;justify-content:space-between}
+  .stat b{font-size:26px}.stat small{font-size:12px}.stats .dot{display:none}
+  .ftrigs{display:none}
+  .fbtn{display:flex}
+  .qcard{padding:20px}
+  .qtext{font-size:15px}
+  .mh{padding:16px;gap:12px}
+  .mtot{display:none}
+  .mcopy strong{font-size:16px}
+  .trow{flex-wrap:wrap;gap:6px 12px}.trow .tt{flex:1 1 140px}
+  .trow .act{display:none}
+  .head .btn{width:100%}
+  .qf{flex-direction:column;align-items:flex-start}
+  .acts{width:100%}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+  .qcard:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <div class="wrap nav-in">
+    <a class="brand" href="#" aria-label="[SITE NAME] home"><span class="logo" id="logo"></span>[SITE NAME]</a>
+    <nav class="nav-links" aria-label="Main" id="navlinks"></nav>
+    <div class="nav-tools">
+      <button class="theme" id="theme" aria-label="Toggle light and dark theme"><span id="themeIc"></span></button>
+      <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false"></button>
+    </div>
+  </div>
+</header>
+<nav class="menu" id="menu" aria-label="Mobile"></nav>
+
+<main class="wrap" id="app">
+  <nav class="crumbs" aria-label="Breadcrumb" id="crumbs"></nav>
+  <section class="head" id="head"></section>
+
+  <section class="toolbar" aria-label="Search and filters">
+    <label class="search" id="searchBox">
+      <span id="searchIc"></span>
+      <span class="sr">Search within this course</span>
+      <input id="q" type="search" placeholder="Search within this course..." autocomplete="off">
+      <button class="clear-q" id="clearQ" type="button" aria-label="Clear search"></button>
+      <span class="kbd" aria-hidden="true">/</span>
+    </label>
+    <div class="ftrigs" id="ftrigs"></div>
+    <button class="ftrig fbtn" id="openDrawer" type="button" aria-haspopup="dialog"></button>
+    <div class="chips" id="chips" aria-live="polite"></div>
+  </section>
+
+  <div class="cols">
+    <div id="mainCol"></div>
+    <aside class="side" id="side" aria-label="Course information"></aside>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <span>Made for students · Not affiliated with VIT. Question papers belong to their respective owners.</span>
+    <nav aria-label="Footer"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a><a href="#">Report an issue</a></nav>
+  </div>
+</footer>
+
+<div class="ov" id="ov"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="shTitle">
+  <div class="grab"></div>
+  <div class="sh-h"><h2 id="shTitle">Filters</h2><button class="btn" id="closeDrawer" type="button" aria-label="Close filters" style="width:38px;padding:0"></button></div>
+  <div class="sh-b" id="shBody"></div>
+  <div class="sh-f"><button class="btn" id="shClear" type="button">Clear all</button><button class="btn accent" id="shShow" type="button"></button></div>
+</div>
+
+<script>
+/* =====================================================================
+   MOCK DATA — demonstration content only. Counts, papers and slots are
+   placeholders until the backend exists.
+   ===================================================================== */
+const COURSE = { code:'BCSE384L', name:'Theory of Computation', campus:'VIT Chennai', curriculum:'Curriculum 2022' };
+const MODULES = [
+  {n:'01', title:'Finite Automata', topics:[['1.1','Alphabets, strings and languages'],['1.2','Deterministic finite automata'],['1.3','Nondeterministic finite automata']]},
+  {n:'02', title:'Regular Expressions and Languages', topics:[['2.1','Regular expressions'],['2.2','Pumping lemma for regular languages'],['2.3','Closure properties']]},
+  {n:'03', title:'Context-Free Grammars', topics:[['3.1','Derivations and parse trees'],['3.2','Ambiguity and normal forms']]},
+  {n:'04', title:'Pushdown Automata', topics:[['4.1','PDA construction'],['4.2','Equivalence of PDA and CFG']]},
+  {n:'05', title:'Turing Machines', topics:[['5.1','Turing machine design'],['5.2','Variants of Turing machines']]},
+  {n:'06', title:'Decidability and Complexity', topics:[['6.1','Undecidability and the halting problem']]}
+];
+// t=topic, n=label, e=exam, m=marks, s=semester, y=academic year, sl=slot, c=campus, qt=question type, cur=curriculum status
+const Q = (t,n,e,m,s,y,sl,c,qt,cur,text,img)=>({t,n,exam:e,marks:String(m),sem:s,ay:y,slot:sl,campus:c,qt,cur,text,img:!!img});
+const CH='VIT Chennai', VL='VIT Vellore';
+const QUESTIONS = [
+  Q('1.1','Q1','CAT 1',5,'Winter','2023–24','A1+TA1',CH,'Descriptive','Current','Let Σ = {a, b}. Define Σ* and list every string of length at most 2. Give an example of a language over Σ that is infinite but not equal to Σ*.'),
+  Q('1.1','Q2','CAT 1',5,'Fall','2022–23','B1+TB1',CH,'Descriptive','Current','Differentiate between a string, a language and an alphabet with one example each. For w = abba, find |w|, the reverse of w and the number of prefixes of w.'),
+  Q('1.2','Q1','CAT 1',10,'Winter','2023–24','A1+TA1',CH,'Design','Current','Design a DFA over {0, 1} that accepts all strings in which the number of 0s is divisible by 3 and the string ends with 1. Give the transition table and the state diagram.'),
+  Q('1.2','Q2','FAT',15,'Fall','2022–23','B2+TB2',CH,'Design','Current','Construct a minimal DFA for the language of all strings over {a, b} that contain the substring abb. Use the table-filling method to show that no two states of your DFA are equivalent.'),
+  Q('1.2','Q3(a)','CAT 2',8,'Winter','2022–23','C1+TC1',CH,'Design','Current','',true),
+  Q('1.2','Q1(b)','CAT 1',10,'Fall','2019–20','D1+TD1',CH,'Design','Older','Define a deterministic finite automaton formally. Draw the DFA that accepts binary strings representing multiples of 5 and trace the string 10110 through it.'),
+  Q('1.2','Q4','FAT',10,'Winter','2021–22','E1+TE1',VL,'Design','Current','Construct a DFA over {0, 1} that accepts strings with an even number of 0s and an odd number of 1s. Show the transition table.'),
+  Q('1.2','Q5','CAT 2',8,'Fall','2021–22','F1+TF1',CH,'Descriptive','Current','Explain how a DFA can drive a lexical analyser. Give the DFA for identifiers that start with a letter followed by any number of letters or digits.'),
+  Q('1.3','Q1','FAT',15,'Winter','2023–24','B2+TB2',CH,'Design','Current','Convert the NFA with ε-transitions (q0 –ε→ q1, q1 –a→ q2, q2 accepting) into an equivalent DFA using subset construction.'),
+  Q('1.3','Q2','CAT 1',10,'Fall','2020–21','A2+TA2',CH,'Proof','Older','Prove that every language accepted by a nondeterministic finite automaton is also accepted by some deterministic finite automaton.'),
+  Q('2.1','Q1','CAT 2',8,'Winter','2023–24','C1+TC1',CH,'Design','Current','Write regular expressions for (i) strings over {0, 1} with no two consecutive 1s and (ii) strings over {0, 1} that end with 01.'),
+  Q('2.1','Q2','FAT',10,'Fall','2022–23','D2+TD2',CH,'Design','Current','Convert the regular expression (a+b)*abb to an NFA using Thompson’s construction, then to a DFA.'),
+  Q('2.2','Q1','CAT 2',10,'Winter','2022–23','E1+TE1',CH,'Proof','Current','Using the pumping lemma, prove that L = { 0ⁿ1ⁿ | n ≥ 0 } is not regular.'),
+  Q('2.2','Q2','FAT',10,'Fall','2021–22','A2+TA2',VL,'Proof','Current','Show that L = { ww | w ∈ {a, b}* } is not a regular language.'),
+  Q('2.3','Q1','CAT 2',5,'Winter','2021–22','B1+TB1',CH,'Proof','Unmapped','Prove that regular languages are closed under complement and under intersection.'),
+  Q('3.1','Q1','CAT 2',8,'Winter','2023–24','D1+TD1',CH,'Design','Current','Design a CFG for L = { aⁿb²ⁿ | n ≥ 1 } and derive the string aabbbb using a leftmost derivation.'),
+  Q('3.1','Q2','FAT',10,'Fall','2022–23','E2+TE2',CH,'Descriptive','Current','Draw the parse tree for id + id * id using E → E + T | T, T → T * F | F, F → id, and write its rightmost derivation.'),
+  Q('3.2','Q1','CAT 2',10,'Winter','2022–23','F1+TF1',CH,'Descriptive','Current','Show that the grammar S → SS | a | b is ambiguous and give an equivalent unambiguous grammar.'),
+  Q('3.2','Q2','FAT',15,'Fall','2021–22','A1+TA1',CH,'Design','Current','Convert S → AB, A → aA | ε, B → bB | b to Chomsky Normal Form after removing ε- and unit productions.'),
+  Q('4.1','Q1','CAT 2',10,'Winter','2023–24','A2+TA2',CH,'Design','Current','Construct a PDA that accepts L = { w c wᴿ | w ∈ {a, b}* } by final state.'),
+  Q('4.1','Q2','FAT',15,'Fall','2022–23','B1+TB1',CH,'Design','Current','Design a PDA that accepts strings with equal numbers of a’s and b’s, and trace the string aabb.'),
+  Q('4.2','Q1','FAT',15,'Fall','2019–20','C2+TC2',CH,'Descriptive','Older','Describe the construction of a PDA from a given CFG and illustrate it for S → aSb | ab.'),
+  Q('5.1','Q1','FAT',15,'Winter','2023–24','D2+TD2',CH,'Design','Current','Design a Turing machine that accepts L = { aⁿbⁿcⁿ | n ≥ 1 } and trace it for aabbcc.'),
+  Q('5.1','Q2','CAT 2',10,'Fall','2022–23','E1+TE1',VL,'Design','Current','Construct a Turing machine that computes the two’s complement of a binary number.'),
+  Q('5.2','Q1','FAT',10,'Winter','2022–23','F2+TF2',CH,'Descriptive','Unmapped','Compare multi-tape, nondeterministic and universal Turing machines in terms of power and simulation cost.'),
+  Q('6.1','Q1','FAT',10,'Winter','2023–24','A1+TA1',CH,'Proof','Current','Prove that the halting problem is undecidable using diagonalisation.'),
+  Q('6.1','Q2','CAT 2',8,'Fall','2019–20','B2+TB2',CH,'Descriptive','Older','State Rice’s theorem and use it to show that deciding whether a Turing machine accepts the empty language is undecidable.')
+];
+const FACETS = [
+  {k:'campus',label:'Campus'},{k:'exam',label:'Exam type'},{k:'slot',label:'Slot'},{k:'sem',label:'Semester'},
+  {k:'ay',label:'Academic year'},{k:'marks',label:'Marks'},{k:'qt',label:'Question type'}
+];
+const BADGE_TEXT = {Current:'Current syllabus', Older:'Older syllabus · may not match', Unmapped:'Mapping pending'};
+const BADGE_ICON = {Current:'check', Older:'alert', Unmapped:'info'};
+const TOPICS = {}; MODULES.forEach(m=>m.topics.forEach(([id,t])=>TOPICS[id]={id,title:t,mod:m}));
+
+/* ---------- icons ---------- */
+const P = {
+ 'chevron-down':'<path d="m6 9 6 6 6-6"/>','chevron-up':'<path d="m18 15-6-6-6 6"/>','chevron-right':'<path d="m9 18 6-6-6-6"/>',
+ 'arrow-left':'<path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>','arrow-right':'<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+ 'arrow-up-right':'<path d="M7 7h10v10"/><path d="M7 17 17 7"/>','x':'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ 'search':'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+ 'file-text':'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/>',
+ 'map-pin':'<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/>',
+ 'calendar':'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>',
+ 'clock':'<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>','check':'<path d="M20 6 9 17l-5-5"/>',
+ 'alert':'<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+ 'info':'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>',
+ 'sliders':'<path d="M4 21v-7"/><path d="M4 10V3"/><path d="M12 21v-9"/><path d="M12 8V3"/><path d="M20 21v-5"/><path d="M20 12V3"/><path d="M1 14h6"/><path d="M9 8h6"/><path d="M17 16h6"/>',
+ 'book-open':'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+ 'lock':'<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
+ 'layers':'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+ 'home':'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/>',
+ 'copy':'<rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>',
+ 'bookmark':'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>',
+ 'moon':'<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>',
+ 'sun':'<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.9 4.9 1.4 1.4"/><path d="m17.7 17.7 1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.3 17.7-1.4 1.4"/><path d="m19.1 4.9-1.4 1.4"/>',
+ 'menu':'<path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/>',
+ 'cap':'<path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>'
+};
+const ic = (n,cls='')=>`<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const esc = s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+/* =====================================================================
+   STATE + FILTER LOGIC
+   ===================================================================== */
+const state = {
+  view:'overview', topic:null, open:new Set(), query:'', openFilter:null, shown:4,
+  filters:Object.fromEntries(FACETS.map(f=>[f.k,new Set()]))
+};
+const fmt = (k,v)=> k==='marks' ? v+' marks' : k==='sem' ? v+' Semester' : v;
+const src = q=>`${COURSE.code}_${q.exam.replace(' ','')}_${q.sem==='Winter'?'WS':'FS'}${q.ay.replace('–','-')}_${q.slot.split('+')[0]}.pdf`;
+const hay = q=>[q.text,q.n,q.exam,q.slot,q.qt,TOPICS[q.t].title,TOPICS[q.t].mod.title,src(q),q.ay].join(' ').toLowerCase();
+function matches(q, skip){
+  if(state.query && !hay(q).includes(state.query.toLowerCase())) return false;
+  for(const f of FACETS){ if(f.k===skip) continue; const s=state.filters[f.k]; if(s.size && !s.has(q[f.k])) return false; }
+  return true;
+}
+const filtered = ()=>QUESTIONS.filter(q=>matches(q));
+const activeCount = ()=>FACETS.reduce((a,f)=>a+state.filters[f.k].size,0);
+const hasFilters = ()=>activeCount()>0 || !!state.query;
+const sortVals = (k,vals)=> k==='marks' ? vals.sort((a,b)=>a-b) : k==='ay' ? vals.sort().reverse() : vals.sort();
+function options(k){
+  const all = sortVals(k,[...new Set(QUESTIONS.map(q=>q[k]))]);
+  return all.map(v=>({v, n:QUESTIONS.filter(q=>q[k]===v && matches(q,k)).length}));
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+const $ = id=>document.getElementById(id);
+function renderChrome(){
+  $('logo').innerHTML = ic('cap');
+  const links = [['Home','home','#'],['Practice Questions','book-open','#',true],['Papers','copy','#'],['Syllabus','bookmark','#']];
+  const mk = (cls)=>links.map(([t,i,h,a])=>`<a href="${h}" ${a?'aria-current="page"':''}>${ic(i)}${t}</a>`).join('');
+  $('navlinks').innerHTML = mk(); $('menu').innerHTML = mk();
+  $('themeIc').innerHTML = ic(document.documentElement.dataset.theme==='dark'?'moon':'sun','s');
+  $('burger').innerHTML = ic('menu');
+  $('searchIc').innerHTML = ic('search'); $('clearQ').innerHTML = ic('x');
+  $('closeDrawer').innerHTML = ic('x');
+}
+function renderCrumbs(){
+  const c = [`<a href="#">Home</a>`,ic('chevron-right'),`<a href="#">Practice Questions</a>`,ic('chevron-right')];
+  if(state.view==='topic'){
+    c.push(`<a href="#" data-act="back">${esc(COURSE.name)}</a>`,ic('chevron-right'),`<span aria-current="page">${esc(TOPICS[state.topic].title)}</span>`);
+  } else c.push(`<span aria-current="page">${esc(COURSE.name)}</span>`);
+  $('crumbs').innerHTML = c.join('');
+}
+function renderHead(){
+  const topics = MODULES.reduce((a,m)=>a+m.topics.length,0);
+  if(state.view==='topic'){
+    const t = TOPICS[state.topic], total = QUESTIONS.filter(q=>q.t===t.id).length;
+    $('head').innerHTML = `
+      <div class="head-main">
+        <div class="overline">Module ${t.mod.n} · ${esc(t.mod.title)}</div>
+        <h1 class="topic">${esc(t.title)}</h1>
+        <div class="meta"><span class="tag code">${COURSE.code}</span><span class="tag">${total} questions · placeholder</span><span class="badge Current">${ic('check')}Current syllabus</span></div>
+      </div>
+      <button class="btn" data-act="back">${ic('arrow-left')}Back to topics</button>`;
+  } else {
+    $('head').innerHTML = `
+      <div class="head-main">
+        <span class="tag code" style="align-self:flex-start">${COURSE.code}</span>
+        <h1>${esc(COURSE.name)}</h1>
+        <div class="meta"><span class="m">${ic('map-pin','s')}${COURSE.campus}</span><span class="m">${ic('book-open','s')}${COURSE.curriculum}</span><span class="badge Current">${ic('check')}Current syllabus</span></div>
+      </div>
+      <div class="stats" aria-label="Course statistics">
+        <div class="stat"><b>${QUESTIONS.length}</b><small>QUESTIONS</small></div><i class="dot"></i>
+        <div class="stat"><b>${MODULES.length}</b><small>MODULES</small></div><i class="dot"></i>
+        <div class="stat"><b>${topics}</b><small>TOPICS</small></div>
+      </div>`;
+  }
+}
+function renderFilters(){
+  $('ftrigs').innerHTML = FACETS.map(f=>{
+    const n = state.filters[f.k].size, open = state.openFilter===f.k;
+    let pop='';
+    if(open){
+      pop = `<div class="pop" role="group" aria-label="${f.label} options"><h4>${f.label}</h4>${options(f.k).map(o=>{
+        const on = state.filters[f.k].has(o.v), dis = o.n===0 && !on;
+        return `<label class="fopt ${dis?'dis':''}"><input type="checkbox" data-f="${f.k}" data-v="${esc(o.v)}" ${on?'checked':''} ${dis?'disabled':''}><span class="box">${ic('check')}</span>${esc(fmt(f.k,o.v))}<span class="n">${dis?'No papers':o.n}</span></label>`;
+      }).join('')}<div class="note">${ic('info','s')}<span>Options narrow to papers that match your other filters. Unavailable options are dimmed.</span></div></div>`;
+    }
+    return `<div class="fgroup"><button class="ftrig ${n?'on':''}" type="button" data-trig="${f.k}" aria-haspopup="true" aria-expanded="${open}"><span class="l">${f.label}</span>${n?`<span class="cnt">${n}</span>`:''}${ic(open?'chevron-up':'chevron-down')}</button>${pop}</div>`;
+  }).join('');
+  const n = activeCount();
+  $('openDrawer').innerHTML = `${ic('sliders')}<span class="l">Filters</span>${n?`<span class="cnt">${n}</span>`:''}`;
+  $('openDrawer').className = 'ftrig fbtn'+(n?' on':'');
+  // chips
+  const chips = [];
+  FACETS.forEach(f=>[...state.filters[f.k]].forEach(v=>chips.push(`<span class="chip"><em>${f.label}:</em> <b>${esc(fmt(f.k,v))}</b><button type="button" data-rm="${f.k}" data-v="${esc(v)}" aria-label="Remove ${f.label} ${esc(v)}" class="rmx">${ic('x')}</button></span>`)));
+  const total = filtered().length;
+  $('chips').innerHTML = chips.length || state.query
+    ? `<span class="lbl">Active filters</span>${chips.join('')}<button class="link" type="button" data-act="clear">${ic('x','s')}Clear all</button><span class="status" role="status">· ${total} of ${QUESTIONS.length} questions match</span>`
+    : `<span class="status" role="status">Showing all ${QUESTIONS.length} questions · no filters applied</span>`;
+}
+function coveragePanel(){
+  const cnt = k=>QUESTIONS.filter(q=>q.cur===k).length;
+  return `<div class="panel"><h3>${ic('layers')}Curriculum coverage</h3>
+    <p>Questions are mapped to the current syllabus where possible. Older and unmapped questions are labelled on each card.</p>
+    ${['Current','Older','Unmapped'].map(k=>`<div class="row"><span class="badge ${k}">${ic(BADGE_ICON[k])}${BADGE_TEXT[k]}</span><span><b>${cnt(k)}</b> <small>questions</small></span></div>`).join('')}
+    <hr><div class="pnote">${ic('info','s')}Sample counts — placeholders</div></div>`;
+}
+function renderSide(){
+  let html='';
+  if(state.view==='topic'){
+    const t = TOPICS[state.topic], all = QUESTIONS.filter(q=>q.t===t.id), list = all.filter(q=>matches(q));
+    html += `<div class="panel"><div class="overline" style="font-size:11px;letter-spacing:1.5px">Current topic</div>
+      <h3 style="font-size:16px;line-height:1.3">${t.id}&nbsp; ${esc(t.title)}</h3><p>Module ${t.mod.n} · ${esc(t.mod.title)}</p><hr>
+      <div class="row">Questions in topic<b>${all.length}</b></div><div class="row">Matching your filters<b>${list.length}</b></div><div class="row">Showing now<b>${Math.min(state.shown,list.length)}</b></div>
+      <div class="pnote">${ic('info','s')}Counts are placeholders</div></div>`;
+  }
+  $('side').innerHTML = html + coveragePanel();
+}
+function moduleHTML(m,i){
+  const ids = m.topics.map(t=>t[0]);
+  const all = QUESTIONS.filter(q=>ids.includes(q.t)), list = all.filter(q=>matches(q));
+  const fl = hasFilters(), open = state.open.has(m.n), zero = fl && list.length===0;
+  const meta = `${m.topics.length} topics` + (fl ? ` · ${list.length} of ${all.length} match` : '');
+  const rows = m.topics.map(([id,title])=>{
+    const a = all.filter(q=>q.t===id).length, f = list.filter(q=>q.t===id).length;
+    const c = fl ? (f? `${f} of ${a} questions` : 'No matches') : `${a} questions`;
+    return `<button class="trow ${fl&&!f?'zero':''}" type="button" data-topic="${id}"><span class="ix">${id}</span><span class="tt">${esc(title)}</span><span class="tc">${c}</span><span class="act"><span>Practise topic</span>${ic('arrow-right')}</span></button>`;
+  }).join('');
+  return `<article class="mod ${open?'open':''} ${zero?'zero':''}">
+    <button class="mh" type="button" data-mod="${m.n}" aria-expanded="${open}" aria-controls="mp${m.n}">
+      <span class="mnum">${m.n}</span>
+      <span class="mcopy"><strong>${esc(m.title)}</strong><small>${meta}</small></span>
+      <span class="mtot"><b>${fl?list.length:all.length}</b><small>Questions</small></span>
+      <span class="tgl">${ic('chevron-down')}</span>
+    </button>
+    <div class="panelwrap" id="mp${m.n}" role="region" aria-label="${esc(m.title)} topics"><div><div class="topics">${rows}</div></div></div>
+  </article>`;
+}
+function emptyHTML(){
+  return `<div class="empty"><div class="oc">${ic('search')}</div><h3>No questions match these filters</h3>
+    <p>Try removing a filter or searching for a different topic. Your syllabus modules and topics are unchanged.</p>
+    <div class="btns"><button class="btn accent" type="button" data-act="clearFilters">Clear all filters</button><button class="btn" type="button" data-act="resetSearch">Reset search</button></div></div>`;
+}
+const DFA = `<svg viewBox="0 0 360 120" width="100%" style="max-width:360px" role="img" aria-label="State diagram of a deterministic finite automaton with states q0, q1 and q2">
+ <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" fill="currentColor"/></marker></defs>
+ <g fill="none" stroke="currentColor" stroke-width="1.6" style="color:var(--t3)">
+  <path d="M10 60h42" marker-end="url(#ar)"/><circle cx="76" cy="60" r="24"/><circle cx="196" cy="60" r="24"/><circle cx="316" cy="60" r="24"/><circle cx="316" cy="60" r="19"/>
+  <path d="M100 60h72" marker-end="url(#ar)"/><path d="M220 60h72" marker-end="url(#ar)"/>
+  <path d="M190 36c-4-26 16-26 12 0" marker-end="url(#ar)"/>
+ </g>
+ <g fill="currentColor" font-family="JetBrains Mono,monospace" font-size="13" text-anchor="middle" style="color:var(--t3)">
+  <text x="76" y="65">q0</text><text x="196" y="65">q1</text><text x="316" y="65">q2</text>
+  <text x="136" y="50">0</text><text x="256" y="50">1</text><text x="196" y="6">0</text></g></svg>`;
+function qHTML(q){
+  return `<article class="qcard" tabindex="0" aria-label="Question ${esc(q.n)}">
+    <div class="qh"><span class="tag code">${esc(q.n)}</span><span class="tag accent">${q.exam}</span><span class="tag">${q.marks} marks</span><span class="tag">${q.qt}</span><span class="sp"></span><span class="badge ${q.cur}">${ic(BADGE_ICON[q.cur])}${BADGE_TEXT[q.cur]}</span></div>
+    ${q.img ? `<div class="qimg" role="group" aria-label="Question image">${DFA}<span>Scanned question image — placeholder diagram</span></div>` : `<p class="qtext">${esc(q.text)}</p>`}
+    <div class="qmeta"><span>${ic('calendar','s')}${q.sem} Semester · ${q.ay}</span><span>${ic('clock','s')}Slot ${q.slot}</span><span>${ic('map-pin','s')}${q.campus}</span></div>
+    <hr>
+    <div class="qf"><span class="src">${ic('file-text','s')}${src(q)}</span>
+      <div class="acts"><button class="btn" type="button" disabled title="Solutions are not available yet">${ic('lock')}Show answer</button><a class="btn" href="#" data-demo="paper" aria-label="View source paper ${src(q)}">View source paper${ic('arrow-up-right')}</a></div></div>
+  </article>`;
+}
+function renderMain(){
+  const fl = hasFilters();
+  if(state.view==='topic'){
+    const list = QUESTIONS.filter(q=>q.t===state.topic && matches(q));
+    const shown = list.slice(0,state.shown);
+    $('mainCol').innerHTML = list.length
+      ? `<div class="qlist">${shown.map(qHTML).join('')}</div>
+         <div class="more"><span class="status" role="status">Showing ${shown.length} of ${list.length} questions</span><div class="bar"><i style="width:${shown.length/list.length*100}%"></i></div>
+         ${shown.length<list.length?`<button class="btn" type="button" data-act="more">Load more questions${ic('chevron-down')}</button>`:''}</div>
+         <p class="demo">Demonstration data — papers, slots and counts are placeholders.</p>`
+      : emptyHTML();
+    return;
+  }
+  const none = fl && filtered().length===0;
+  $('mainCol').innerHTML = `<div class="sec-h"><h2>Syllabus modules<small>${MODULES.length} modules · ${MODULES.reduce((a,m)=>a+m.topics.length,0)} topics</small></h2>
+    <button class="link" type="button" data-act="toggleAll">${state.open.size===MODULES.length?'Collapse all':'Expand all'}${ic(state.open.size===MODULES.length?'chevron-up':'chevron-down','s')}</button></div>
+    ${none ? emptyHTML() : `<div class="mods">${MODULES.map(moduleHTML).join('')}</div>`}
+    <p class="demo">Demonstration data — question counts are placeholders.</p>`;
+}
+function renderDrawer(){
+  $('shBody').innerHTML = FACETS.map(f=>`<div><h4>${f.label}</h4><div class="ochips">${options(f.k).map(o=>{
+    const on = state.filters[f.k].has(o.v), dis = o.n===0 && !on;
+    return `<button class="och" type="button" data-df="${f.k}" data-v="${esc(o.v)}" aria-pressed="${on}" ${dis?'disabled':''}>${on?ic('check','s'):''}${esc(fmt(f.k,o.v))}</button>`;
+  }).join('')}</div></div>`).join('');
+  $('shShow').textContent = `Show ${filtered().length} questions`;
+}
+function renderAll(){
+  renderCrumbs(); renderHead(); renderFilters(); renderMain(); renderSide();
+  $('searchBox').classList.toggle('has-q',!!state.query);
+  if($('sheet').classList.contains('show')) renderDrawer();
+}
+
+/* =====================================================================
+   INTERACTIONS
+   ===================================================================== */
+function go(view,topic){
+  state.view=view; state.topic=topic||null; state.shown=4; state.openFilter=null;
+  renderAll(); window.scrollTo({top:0,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+}
+function route(){
+  const m = location.hash.match(/^#topic=([\d.]+)$/);
+  if(m && TOPICS[m[1]]) go('topic',m[1]); else go('overview');
+}
+function clearFilters(){ FACETS.forEach(f=>state.filters[f.k].clear()); state.shown=4; }
+function resetSearch(){ state.query=''; $('q').value=''; state.shown=4; }
+function toggleFilter(k,v,on){ const s=state.filters[k]; on?s.add(v):s.delete(v); state.shown=4; }
+
+document.addEventListener('click',e=>{
+  const t = e.target;
+  const topic = t.closest('[data-topic]'); if(topic){ location.hash='topic='+topic.dataset.topic; return; }
+  const mod = t.closest('[data-mod]'); if(mod){
+    const id=mod.dataset.mod; state.open.has(id)?state.open.delete(id):state.open.add(id);
+    const isOpen=state.open.has(id); mod.closest('.mod').classList.toggle('open',isOpen); mod.setAttribute('aria-expanded',isOpen);
+    const ta=document.querySelector('[data-act="toggleAll"]'); if(ta){ const all=state.open.size===MODULES.length; ta.innerHTML=(all?'Collapse all':'Expand all')+ic(all?'chevron-up':'chevron-down','s'); }
+    return; }
+  const trig = t.closest('[data-trig]'); if(trig){ const k=trig.dataset.trig; state.openFilter = state.openFilter===k?null:k; renderFilters(); const b=document.querySelector(`[data-trig="${k}"]`); b&&b.focus(); return; }
+  const rm = t.closest('[data-rm]'); if(rm){ toggleFilter(rm.dataset.rm,rm.dataset.v,false); renderAll(); return; }
+  const df = t.closest('[data-df]'); if(df && !df.disabled){ const on=df.getAttribute('aria-pressed')!=='true'; toggleFilter(df.dataset.df,df.dataset.v,on); renderAll(); const b=document.querySelector(`[data-df="${df.dataset.df}"][data-v="${CSS.escape(df.dataset.v)}"]`); b&&b.focus(); return; }
+  const act = t.closest('[data-act]');
+  if(act){
+    e.preventDefault();
+    const a = act.dataset.act;
+    if(a==='back'){ if(location.hash){ location.hash=''; history.replaceState(null,'',location.pathname+location.search); route(); } else go('overview'); }
+    else if(a==='clear'){ clearFilters(); resetSearch(); renderAll(); }
+    else if(a==='clearFilters'){ clearFilters(); renderAll(); }
+    else if(a==='resetSearch'){ resetSearch(); renderAll(); }
+    else if(a==='more'){ state.shown+=4; renderMain(); renderSide(); renderFilters(); }
+    else if(a==='toggleAll'){ state.open.size===MODULES.length ? state.open.clear() : MODULES.forEach(m=>state.open.add(m.n)); renderMain(); }
+    return;
+  }
+  if(t.closest('[data-demo]')){ e.preventDefault(); return; }
+  if(!t.closest('.fgroup') && state.openFilter){ state.openFilter=null; renderFilters(); }
+});
+document.addEventListener('change',e=>{
+  const i = e.target.closest('input[data-f]'); if(!i) return;
+  toggleFilter(i.dataset.f,i.dataset.v,i.checked); renderMain(); renderSide(); renderFilters();
+  const b=document.querySelector(`input[data-f="${i.dataset.f}"][data-v="${CSS.escape(i.dataset.v)}"]`); b&&b.focus();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){ if($('sheet').classList.contains('show')) closeDrawer(); else if(state.openFilter){ const k=state.openFilter; state.openFilter=null; renderFilters(); const b=document.querySelector(`[data-trig="${k}"]`); b&&b.focus(); } }
+  if(e.key==='/' && !/input|textarea/i.test(document.activeElement.tagName)){ e.preventDefault(); $('q').focus(); }
+});
+document.addEventListener('pointermove',e=>{
+  const c = e.target.closest && e.target.closest('.qcard'); if(!c) return;
+  const r=c.getBoundingClientRect(); c.style.setProperty('--mx',(e.clientX-r.left)+'px'); c.style.setProperty('--my',(e.clientY-r.top)+'px');
+});
+$('q').addEventListener('input',e=>{ state.query=e.target.value.trim(); state.shown=4; renderAll(); });
+$('clearQ').addEventListener('click',()=>{ resetSearch(); renderAll(); $('q').focus(); });
+$('theme').addEventListener('click',()=>{ const d=document.documentElement; d.dataset.theme = d.dataset.theme==='dark'?'light':'dark'; renderChrome(); });
+$('burger').addEventListener('click',()=>{ const s=$('menu').classList.toggle('show'); $('burger').setAttribute('aria-expanded',s); });
+
+/* drawer */
+let lastFocus=null;
+function openDrawer(){ lastFocus=document.activeElement; renderDrawer(); $('ov').classList.add('show'); $('sheet').classList.add('show'); $('closeDrawer').focus(); document.body.style.overflow='hidden'; }
+function closeDrawer(){ $('ov').classList.remove('show'); $('sheet').classList.remove('show'); document.body.style.overflow=''; lastFocus&&lastFocus.focus(); }
+$('openDrawer').addEventListener('click',openDrawer);
+$('closeDrawer').addEventListener('click',closeDrawer); $('ov').addEventListener('click',closeDrawer); $('shShow').addEventListener('click',closeDrawer);
+$('shClear').addEventListener('click',()=>{ clearFilters(); renderAll(); });
+
+window.addEventListener('hashchange',route);
+renderChrome(); route();
+</script>
+</body>
+</html>
