@@ -57,7 +57,7 @@ export const COURSE: CourseInfo = {
   code: "BCSE384L",
   name: "Theory of Computation",
   campus: "VIT Chennai",
-  curriculum: "Curriculum 2022",
+  curriculum: "ACE Curriculum",
 };
 
 export const MODULES: Module[] = [

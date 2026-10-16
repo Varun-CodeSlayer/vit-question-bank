@@ -202,7 +202,7 @@ export async function fetchCoursePracticeData(
     code: dbCourse.course_code,
     name: dbCourse.course_name,
     campus: dbCourse.course_id?.startsWith("VITC") ? "VIT Chennai" : "VIT",
-    curriculum: "Curriculum 2022",
+    curriculum: "ACE Curriculum",
   };
 
   const topicIndexMap: Record<string, string> = {};
