@@ -193,18 +193,6 @@ export default function PaperViewContent({ paperId }: PaperViewContentProps) {
                     <span>
                       <strong>Term:</strong> {paper.semester} {paper.academicYear}
                     </span>
-                    <span className="dot" aria-hidden="true"></span>
-                    <span>
-                      <strong>Paper ID:</strong> {paper.paperId}
-                    </span>
-                    {paper.originalFilename && (
-                      <>
-                        <span className="dot" aria-hidden="true"></span>
-                        <span className="paper-filename">
-                          <strong>Source:</strong> {paper.originalFilename}
-                        </span>
-                      </>
-                    )}
                   </div>
                 </div>
               </div>

@@ -45,11 +45,6 @@ export default function PaperCard({
             {paper.examType}
           </span>
         </div>
-        {paper.maxMarks ? (
-          <span className="paper-card__marks" title="Total Marks">
-            {paper.maxMarks} Marks
-          </span>
-        ) : null}
       </div>
 
       {/* Course Title */}
@@ -83,27 +78,6 @@ export default function PaperCard({
               <span>{paper.slot}</span>
             </div>
           ) : null}
-        </div>
-
-        {/* Document Status Pill */}
-        <div className="paper-card__status">
-          {hasFile ? (
-            <span className="paper-card__status-badge available" title="Verified PDF link available">
-              <svg className="i" viewBox="0 0 24 24" aria-hidden="true">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-              PDF Document
-            </span>
-          ) : (
-            <span className="paper-card__status-badge pending" title="Digital scan pending upload">
-              <svg className="i" viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
-              Paper Indexed
-            </span>
-          )}
         </div>
       </div>
 
