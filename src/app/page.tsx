@@ -183,8 +183,8 @@ export default function Home() {
   const handleVoiceSearch = () => {
     if (typeof window === "undefined") return;
     const SpeechRecognition =
-      (window as unknown as { SpeechRecognition?: any }).SpeechRecognition ||
-      (window as unknown as { webkitSpeechRecognition?: any }).webkitSpeechRecognition;
+      (window as unknown as { SpeechRecognition?: new () => { lang: string; interimResults: boolean; maxAlternatives: number; onresult: (e: { results: Array<Array<{ transcript: string }>> }) => void; onerror: () => void; onend: () => void; start: () => void } }).SpeechRecognition ||
+      (window as unknown as { webkitSpeechRecognition?: new () => { lang: string; interimResults: boolean; maxAlternatives: number; onresult: (e: { results: Array<Array<{ transcript: string }>> }) => void; onerror: () => void; onend: () => void; start: () => void } }).webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
       inputRef.current?.focus();
@@ -199,7 +199,7 @@ export default function Home() {
 
       setIsListening(true);
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: { results: Array<Array<{ transcript: string }>> }) => {
         const transcript = event.results[0][0].transcript;
         if (transcript) {
           setSearchQuery(transcript);
