@@ -707,7 +707,9 @@ export default function Home() {
 
             <a
               className="fc rv"
-              href="#"
+              href="https://docs.google.com/forms/d/e/1FAIpQLSeqNSz975pjRQkkBi3z899RsckA9tf-KsXVkZxZOg_p8kAm8A/viewform?usp=dialog"
+              target="_blank"
+              rel="noopener noreferrer"
               style={
                 {
                   "--d": "3",
@@ -847,9 +849,6 @@ export default function Home() {
                 <p>Built by a student, for students.</p>
                 <div className="soc">
                   Find me on
-                  <a className="sb" href="https://www.instagram.com/mostly_average_boi/" target="_blank" rel="noopener noreferrer" data-tip="Instagram" aria-label="Instagram">
-                    <span className="c"></span><svg className="i"><use href="#ig" /></svg>
-                  </a>
                   <a className="sb" href="https://www.linkedin.com/in/varun-s-801a59301/" target="_blank" rel="noopener noreferrer" data-tip="LinkedIn" aria-label="LinkedIn">
                     <span className="c"></span><svg className="i"><use href="#in" /></svg>
                   </a>
@@ -881,7 +880,13 @@ export default function Home() {
                   <s>|</s>
                   <a href="#">Contact</a>
                   <s>|</s>
-                  <a href="#">Report an Issue</a>
+                  <a
+                    href="https://docs.google.com/forms/d/e/1FAIpQLSeqNSz975pjRQkkBi3z899RsckA9tf-KsXVkZxZOg_p8kAm8A/viewform?usp=dialog"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Report an Issue
+                  </a>
                 </div>
               </div>
               <div className="conn">

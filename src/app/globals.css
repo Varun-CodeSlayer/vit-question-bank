@@ -217,7 +217,7 @@ a{color:inherit;text-decoration:none}
 .rule{display:flex;align-items:center;gap:24px;width:100%;justify-content:center}
 .rule::before,.rule::after{content:"";flex:0 1 250px;min-width:0;height:1px;opacity:.6;background:linear-gradient(90deg,transparent,var(--g1))}
 .rule::after{background:linear-gradient(90deg,var(--g3),transparent)}
-.heart{width:58px;height:52px;color:#8b5cf6;animation:beat 2.4s ease-in-out infinite}
+.heart{width:58px;height:52px;color:rgb(176, 30, 40);animation:beat 2.4s ease-in-out infinite}
 @keyframes beat{50%{transform:scale(1.08)}}
 .cc2{display:flex;align-items:center;gap:40px;width:560px;max-width:100%}
 .por{flex:none;width:140px;height:140px;border-radius:50%;padding:3px;display:grid;place-items:center;font-size:56px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--g1),var(--g2),var(--g3));box-shadow:0 0 30px rgba(59,130,246,.3)}
