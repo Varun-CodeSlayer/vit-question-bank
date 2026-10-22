@@ -18,6 +18,9 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "[SITE NAME] – Practice Smarter, Topic by Topic",
   description: "Module-wise and topic-wise previous-year questions, built for your campus.",
+  verification: {
+    google: "2Po3ITrcbdND334FmyNfDcyQQOPIYzCRIod16bPa328",
+  },
 };
 
 export default function RootLayout({
