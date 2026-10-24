@@ -2764,6 +2764,15 @@ footer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12p
   padding: 0 10px;
 }
 
+.paper-card__sub-actions .paper-btn--gdrive {
+  flex: 1.25;
+}
+
+.paper-card__sub-actions .paper-btn--gdrive .paper-btn__gdrive-icon {
+  width: 16px;
+  height: 14px;
+}
+
 .paper-btn {
   display: inline-flex;
   align-items: center;
