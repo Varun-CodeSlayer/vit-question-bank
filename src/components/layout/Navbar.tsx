@@ -47,9 +47,9 @@ export default function Navbar({
   };
 
   const isHome = pathname === "/" || pathname === "";
-  const isPractice = pathname === "/practice";
-  const isPapers = pathname === "/papers";
-  const isSyllabus = pathname === "/syllabus";
+  const isPractice = pathname === "/practice" || pathname.startsWith("/practice/");
+  const isPapers = pathname === "/papers" || pathname.startsWith("/papers/");
+  const isSyllabus = pathname === "/syllabus" || pathname.startsWith("/syllabus/");
 
   return (
     <header className="nav">

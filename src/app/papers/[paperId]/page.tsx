@@ -12,9 +12,11 @@ export async function generateStaticParams() {
   try {
     const { data } = await supabase.from("papers").select("paper_id");
     if (!data) return [];
-    return data.map((p) => ({
-      paperId: p.paper_id,
-    }));
+    return data
+      .filter((p) => Boolean(p.paper_id))
+      .map((p) => ({
+        paperId: p.paper_id.trim(),
+      }));
   } catch (err) {
     console.warn("Could not fetch paper IDs for static params:", err);
     return [];
