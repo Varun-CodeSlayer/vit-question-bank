@@ -212,7 +212,6 @@ export default function PaperViewContent({ paperId }: PaperViewContentProps) {
                     <span className="paper-card__code">{paper.courseCode}</span>
                     <span className={`paper-card__exam ${examBadgeClass}`}>{paper.examType}</span>
                     {paper.slot && <span className="paper-badge-pill">Slot: {paper.slot}</span>}
-                    {paper.maxMarks && <span className="paper-badge-pill">{paper.maxMarks} Marks</span>}
                   </div>
 
                   <h1 className="paper-view-title">{paper.courseName}</h1>
