@@ -11,6 +11,354 @@ export interface Module {
   id?: string;
 }
 
+export interface QuestionPart {
+  part?: string;
+  subpart?: string;
+  label?: string;
+  id?: string;
+  text?: string;
+  question?: string;
+  description?: string;
+  prompt?: string;
+  marks?: number | string | null;
+  mark?: number | string | null;
+  max_marks?: number | string | null;
+  [key: string]: unknown;
+}
+
+export interface NormalizedPart {
+  part: string;
+  text: string;
+  marks: string;
+}
+
+export function normalizePart(
+  item: unknown,
+  index: number
+): NormalizedPart {
+  if (typeof item === "string") {
+    let str = item.trim();
+    let part = "";
+    let marks = "";
+
+    const marksMatch = str.match(
+      /[\[\(]\s*(\d+(?:\.\d+)?)\s*(?:marks?|m)?\s*[\]\)]\s*$/i
+    );
+    if (marksMatch) {
+      marks = marksMatch[1];
+      str = str.substring(0, marksMatch.index).trim();
+    }
+
+    const partMatch =
+      str.match(/^\(?([a-zA-Z0-9]+)\)\s*/i) ||
+      str.match(/^([a-zA-Z0-9]+)[.:\-]\s*/i);
+    if (partMatch) {
+      part = partMatch[1];
+      str = str.substring(partMatch[0].length).trim();
+    } else {
+      part = String(index + 1);
+    }
+
+    return { part, text: str, marks };
+  }
+
+  if (typeof item === "object" && item !== null) {
+    const obj = item as Record<string, unknown>;
+    const rawPart =
+      obj.part ?? obj.subpart ?? obj.label ?? obj.id ?? String(index + 1);
+    const rawText =
+      obj.text ?? obj.question ?? obj.description ?? obj.prompt ?? "";
+    const rawMarks = obj.marks ?? obj.mark ?? obj.max_marks ?? "";
+
+    let textStr = String(rawText);
+    let marksStr =
+      rawMarks != null && rawMarks !== "" ? String(rawMarks).trim() : "";
+
+    if (!marksStr && textStr) {
+      const marksMatch = textStr.match(
+        /[\[\(]\s*(\d+(?:\.\d+)?)\s*(?:marks?|m)?\s*[\]\)]\s*$/i
+      );
+      if (marksMatch) {
+        marksStr = marksMatch[1];
+        textStr = textStr.substring(0, marksMatch.index).trim();
+      }
+    }
+
+    marksStr = marksStr.replace(/^[\[\(]\s*|\s*[\]\)]$/g, "").trim();
+
+    return {
+      part:
+        String(rawPart)
+          .replace(/^[\[\(]\s*|\s*[\]\):.]*$/g, "")
+          .trim() || String(index + 1),
+      text: textStr,
+      marks: marksStr,
+    };
+  }
+
+  return {
+    part: String(index + 1),
+    text: item != null ? String(item) : "",
+    marks: "",
+  };
+}
+
+export interface GeneralTableData {
+  headers: string[];
+  rows: string[][];
+  alignments: ("left" | "center" | "right")[];
+  isSubquestionShape?: boolean;
+}
+
+export function formatHeaderTitle(key: string): string {
+  const l = key.toLowerCase();
+  if (l === "part" || l === "subpart") return "Part";
+  if (l === "text" || l === "question" || l === "prompt" || l === "description") return "Sub-question";
+  if (l === "marks" || l === "mark" || l === "max_marks") return "Marks";
+  return key;
+}
+
+export function formatCellValue(val: unknown): string {
+  if (val === null || val === undefined || val === "") return "—";
+  if (Array.isArray(val)) {
+    return val.join(", ");
+  }
+  if (typeof val === "object") {
+    try {
+      return JSON.stringify(val);
+    } catch {
+      return "[Object]";
+    }
+  }
+  return String(val);
+}
+
+export function inferRowHeader(keys: string[]): string {
+  if (keys.length === 0) return "State";
+  const allStates = keys.every(
+    (k) => /^[A-Z]$/i.test(k) || /^q\d+$/i.test(k) || /^s\d+$/i.test(k)
+  );
+  if (allStates) return "State";
+  const allProcesses = keys.every((k) => /^p\d+$/i.test(k));
+  if (allProcesses) return "Process";
+  const allNumbers = keys.every((k) => /^\d+$/.test(k));
+  if (allNumbers) return "#";
+  return "State";
+}
+
+export function computeAlignments(
+  headers: string[],
+  rows: string[][]
+): ("left" | "center" | "right")[] {
+  return headers.map((h, cIdx) => {
+    const l = h.toLowerCase();
+    if (l === "marks" || l === "mark") return "right";
+    if (l === "part" || l === "subpart") return "center";
+    if (cIdx === 0 && rows.every((r) => (r[0] ?? "").length <= 6)) return "center";
+    if (h.length <= 4 && rows.every((r) => String(r[cIdx] ?? "").length <= 6)) return "center";
+    return "left";
+  });
+}
+
+export function extractNestedTransitionTable(
+  data: unknown
+): Record<string, Record<string, unknown>> | null {
+  let map: unknown = data;
+  if (Array.isArray(data)) {
+    if (data.length === 1 && typeof data[0] === "object" && data[0] !== null) {
+      map = data[0];
+    } else if (
+      data.length > 1 &&
+      data.every((item) => typeof item === "object" && item !== null)
+    ) {
+      const allSingleNested = data.every((item) => {
+        const keys = Object.keys(item);
+        return (
+          keys.length === 1 &&
+          typeof item[keys[0]] === "object" &&
+          item[keys[0]] !== null &&
+          !Array.isArray(item[keys[0]])
+        );
+      });
+      if (allSingleNested) {
+        const m: Record<string, Record<string, unknown>> = {};
+        data.forEach((item) => {
+          const k = Object.keys(item)[0];
+          m[k] = item[k] as Record<string, unknown>;
+        });
+        map = m;
+      }
+    }
+  }
+
+  if (!map || typeof map !== "object" || Array.isArray(map)) return null;
+
+  const obj = map as Record<string, unknown>;
+  const rowKeys = Object.keys(obj);
+  if (rowKeys.length === 0) return null;
+
+  const allValuesAreObjects = rowKeys.every(
+    (k) =>
+      obj[k] !== null &&
+      typeof obj[k] === "object" &&
+      !Array.isArray(obj[k])
+  );
+
+  if (!allValuesAreObjects) return null;
+
+  return obj as Record<string, Record<string, unknown>>;
+}
+
+function parseMarkdownTable(text: string): GeneralTableData | null {
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+  const tableLines = lines.filter((l) => l.includes("|"));
+  if (tableLines.length < 2) return null;
+  const parseRow = (l: string) => {
+    let clean = l;
+    if (clean.startsWith("|")) clean = clean.slice(1);
+    if (clean.endsWith("|")) clean = clean.slice(0, -1);
+    return clean.split("|").map((c) => c.trim());
+  };
+  const headers = parseRow(tableLines[0]);
+  const rows: string[][] = [];
+  for (let i = 1; i < tableLines.length; i++) {
+    if (/^\|?[\s\-:]+(\|[\s\-:]+)+\|?$/.test(tableLines[i])) continue;
+    rows.push(parseRow(tableLines[i]));
+  }
+  if (rows.length === 0) return null;
+  const alignments = computeAlignments(headers, rows);
+  return { headers, rows, alignments };
+}
+
+export function parseGeneralTableData(data: unknown): GeneralTableData | null {
+  if (!data) return null;
+
+  let parsed = data;
+  if (typeof parsed === "string") {
+    const trimmed = parsed.trim();
+    if (!trimmed || trimmed === "[]" || trimmed === "{}") return null;
+    try {
+      parsed = JSON.parse(trimmed);
+    } catch {
+      if (trimmed.includes("|")) {
+        return parseMarkdownTable(trimmed);
+      }
+      return null;
+    }
+  }
+
+  // 1. Check if this is a nested transition table (direct object or array-wrapped)
+  const nestedMap = extractNestedTransitionTable(parsed);
+  if (nestedMap) {
+    const rowKeys = Object.keys(nestedMap);
+    const colKeySet = new Set<string>();
+    rowKeys.forEach((rk) => {
+      const inner = nestedMap[rk];
+      if (inner && typeof inner === "object") {
+        Object.keys(inner).forEach((ck) => colKeySet.add(ck));
+      }
+    });
+    const colKeys = Array.from(colKeySet);
+    const firstHeader = inferRowHeader(rowKeys);
+    const headers = [firstHeader, ...colKeys];
+    const rows = rowKeys.map((rk) => {
+      const rowObj = nestedMap[rk] || {};
+      const cells = [rk];
+      colKeys.forEach((ck) => {
+        cells.push(formatCellValue(rowObj[ck]));
+      });
+      return cells;
+    });
+    const alignments = computeAlignments(headers, rows);
+    return { headers, rows, alignments };
+  }
+
+  if (!parsed || typeof parsed !== "object") return null;
+
+  // 2. Array
+  if (Array.isArray(parsed)) {
+    if (parsed.length === 0) return null;
+
+    // 2a. Array of Arrays
+    if (Array.isArray(parsed[0])) {
+      const headers = (parsed[0] as unknown[]).map((h) => String(h ?? ""));
+      const rows = (parsed.slice(1) as unknown[][]).map((row) =>
+        Array.isArray(row)
+          ? row.map((c) => formatCellValue(c))
+          : [formatCellValue(row)]
+      );
+      if (headers.length === 0 || rows.length === 0) return null;
+      const alignments = computeAlignments(headers, rows);
+      return { headers, rows, alignments };
+    }
+
+    // 2b. Array of Objects
+    if (typeof parsed[0] === "object" && parsed[0] !== null) {
+      const keySet = new Set<string>();
+      (parsed as Record<string, unknown>[]).forEach((item) => {
+        if (item && typeof item === "object") {
+          Object.keys(item).forEach((k) => keySet.add(k));
+        }
+      });
+      const keys = Array.from(keySet);
+      if (keys.length === 0) return null;
+
+      const headers = keys.map((k) => formatHeaderTitle(k));
+      const rows = (parsed as Record<string, unknown>[]).map((item) => {
+        return keys.map((k) => {
+          const val = item ? item[k] : undefined;
+          return formatCellValue(val);
+        });
+      });
+      const alignments = computeAlignments(headers, rows);
+      return { headers, rows, alignments };
+    }
+
+    // 2c. Array of Strings
+    const stringRows = (parsed as unknown[]).map(String);
+    const hasSubparts = stringRows.some((s) =>
+      /^\s*\(?[a-zA-Z0-9]+\)?[.:\-\)]/.test(s)
+    );
+    if (hasSubparts) {
+      const headers = ["Part", "Sub-question", "Marks"];
+      const rows = (parsed as unknown[]).map((item, idx) => {
+        const norm = normalizePart(item, idx);
+        return [
+          norm.part,
+          norm.text,
+          norm.marks ? `${norm.marks} Marks` : "—",
+        ];
+      });
+      const alignments = computeAlignments(headers, rows);
+      return { headers, rows, alignments };
+    } else {
+      const headers = ["#", "Content"];
+      const rows = (parsed as unknown[]).map((item, idx) => [
+        String(idx + 1),
+        formatCellValue(item),
+      ]);
+      const alignments = computeAlignments(headers, rows);
+      return { headers, rows, alignments };
+    }
+  }
+
+  // 3. Flat Object
+  if (typeof parsed === "object" && parsed !== null) {
+    const obj = parsed as Record<string, unknown>;
+    const rowKeys = Object.keys(obj);
+    if (rowKeys.length === 0) return null;
+    const headers = ["Property", "Value"];
+    const rows = rowKeys.map((k) => [k, formatCellValue(obj[k])]);
+    const alignments = computeAlignments(headers, rows);
+    return { headers, rows, alignments };
+  }
+
+  return null;
+}
+
 export interface Question {
   t: string; // topic id
   n: string; // question label, e.g. 'Q1'
@@ -39,6 +387,14 @@ export interface Question {
   moduleId?: string;
   /** Denormalised topic title from the DB */
   topicTitle?: string;
+  /** Sub-questions / general table data from parts JSONB column */
+  parts?: unknown;
+  sourcePage?: number | null;
+  sourcePages?: number[];
+  sourceFilename?: string | null;
+  difficulty?: string | null;
+  hasImageReference?: boolean | null;
+  imageReference?: string | null;
 }
 
 export interface CourseInfo {
@@ -215,6 +571,7 @@ export const formatFacetValue = (k: keyof Question, v: string) => {
 };
 
 export const getQuestionSourceFile = (q: Question) =>
+  q.sourceFilename ||
   q.paperName ||
   `${COURSE.code}_${q.exam.replace(" ", "")}_${
     q.sem === "Winter" ? "WS" : "FS"
@@ -227,22 +584,34 @@ export const getQuestionHaystack = (
   // Use provided topicsMap (Supabase) or fall back to static TOPICS
   const resolvedTopics = topicsMap ?? TOPICS;
   const topic = resolvedTopics[q.t];
+  let partsText = "";
+  if (typeof q.parts === "string") {
+    partsText = q.parts;
+  } else if (q.parts && typeof q.parts === "object") {
+    try {
+      partsText = JSON.stringify(q.parts);
+    } catch {
+      partsText = "";
+    }
+  }
+
   return [
     q.text,
+    partsText,
     q.n,
     q.exam,
     q.slot,
     q.qt,
     topic?.title || q.topicTitle || "",
     topic?.mod?.title || "",
-    q.paperName || getQuestionSourceFile(q),
+    q.sourceFilename || q.paperName || getQuestionSourceFile(q),
     q.ay,
     q.cognitiveLevel || "",
+    q.difficulty || "",
   ]
     .join(" ")
     .toLowerCase();
 };
-
 
 export const isQuestionMatching = (
   q: Question,

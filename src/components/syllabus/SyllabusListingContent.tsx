@@ -127,7 +127,7 @@ export default function SyllabusListingContent() {
                 Course <span className="grad">Syllabus</span>.
               </h1>
               <p className="hero__lede">
-                Browse and view official curriculum outlines and digitized syllabus PDFs for VIT Chennai courses.
+                Look up the syllabus for any VIT Chennai course in seconds.
               </p>
             </div>
 

@@ -13,8 +13,6 @@ import {
   MODULES,
   QUESTIONS,
   TOPICS,
-  BADGE_ICON,
-  BADGE_TEXT,
   FACETS,
   CourseInfo,
   Module,
@@ -371,7 +369,7 @@ export default function CoursePracticeContent({
           topicsMap={topicsMap}
         />
 
-        <div className="cols">
+        <div className="cols no-side">
           <div className="main-col" id="mainCol">
             {isTopicMode ? (
               <QuestionList
@@ -422,109 +420,6 @@ export default function CoursePracticeContent({
               />
             )}
           </div>
-
-          <aside className="side" id="side" aria-label="Course information">
-            {isTopicMode && activeTopic && (
-              <div className="panel">
-                <div
-                  className="overline"
-                  style={{ fontSize: "11px", letterSpacing: "1.5px" }}
-                >
-                  Current topic
-                </div>
-                <h3 style={{ fontSize: "16px", lineHeight: "1.3" }}>
-                  {topicIndexMap[activeTopic.id] || activeTopic.id}&nbsp; {activeTopic.title}
-                </h3>
-                <p>
-                  Module {activeTopic.mod.n} · {activeTopic.mod.title}
-                </p>
-                <hr />
-                <div className="row">
-                  Questions in topic
-                  <b>{questions.filter((q) => q.t === activeTopic.id).length}</b>
-                </div>
-                <div className="row">
-                  Matching your filters
-                  <b>{topicFilteredQuestions.length}</b>
-                </div>
-                <div className="row">
-                  Showing now
-                  <b>{Math.min(4, topicFilteredQuestions.length)}</b>
-                </div>
-                {!isLive && (
-                  <div className="pnote">
-                    <svg className="ic s" viewBox="0 0 24 24" aria-hidden="true">
-                      <circle cx="12" cy="12" r="10" />
-                      <path d="M12 16v-4" />
-                      <path d="M12 8h.01" />
-                    </svg>
-                    Counts are placeholders
-                  </div>
-                )}
-              </div>
-            )}
-
-            <div className="panel">
-              <h3>
-                <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z" />
-                  <path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" />
-                  <path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" />
-                </svg>
-                Curriculum coverage
-              </h3>
-              <p>
-                Questions are mapped to the current syllabus where possible.
-                Older and unmapped questions are labelled on each card.
-              </p>
-              {(["Current", "Older", "Unmapped"] as const).map((key) => {
-                const count = questions.filter((q) => q.cur === key).length;
-                const icon = BADGE_ICON[key];
-                const text = BADGE_TEXT[key];
-
-                return (
-                  <div className="row" key={key}>
-                    <span className={`badge ${key}`}>
-                      <svg
-                        className="ic"
-                        viewBox="0 0 24 24"
-                        aria-hidden="true"
-                      >
-                        {icon === "check" && <path d="M20 6 9 17l-5-5" />}
-                        {icon === "alert" && (
-                          <>
-                            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
-                            <path d="M12 9v4" />
-                            <path d="M12 17h.01" />
-                          </>
-                        )}
-                        {icon === "info" && (
-                          <>
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 16v-4" />
-                            <path d="M12 8h.01" />
-                          </>
-                        )}
-                      </svg>
-                      {text}
-                    </span>
-                    <span>
-                      <b>{count}</b> <small>questions</small>
-                    </span>
-                  </div>
-                );
-              })}
-              <hr />
-              <div className="pnote">
-                <svg className="ic s" viewBox="0 0 24 24" aria-hidden="true">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 16v-4" />
-                  <path d="M12 8h.01" />
-                </svg>
-                {isLive ? "Live counts from database" : "Sample counts — placeholders"}
-              </div>
-            </div>
-          </aside>
         </div>
       </main>
 

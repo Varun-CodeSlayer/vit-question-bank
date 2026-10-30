@@ -5,6 +5,7 @@ import {
   Question,
   TopicMapEntry,
 } from "@/lib/question-data";
+import { getGoogleDriveViewUrl } from "@/lib/paper-service";
 
 export interface PracticeCourse {
   code: string;
@@ -63,15 +64,28 @@ interface DbQuestionRow {
   paper_id?: string | null;
   course_id: string;
   original_question_number?: string | null;
+  parent_question_number?: string | null;
+  source_page?: number | null;
+  source_pages?: number[] | null;
+  source_filename?: string | null;
+  question_text?: string | null;
+  parts?: unknown;
   marks?: number | null;
   question_type?: string | null;
-  cognitive_level?: string | null;
+  question_type_source?: string | null;
+  difficulty?: string | null;
+  difficulty_source?: string | null;
+  mark_source?: string | null;
   bt_level_printed?: number | null;
+  cognitive_level?: string | null;
+  cognitive_level_source?: string | null;
   module_id?: string | null;
   primary_topic_id?: string | null;
   primary_topic_title?: string | null;
+  topic_mapping_source?: string | null;
+  syllabus_relevance_explanation?: string | null;
   has_image_reference?: boolean | null;
-  question_text?: string | null;
+  image_reference?: string | null;
   papers?: DbPaperRow | null;
 }
 
@@ -245,6 +259,32 @@ export async function fetchCoursePracticeData(
   const questionRows = (questionsRes.data || []) as unknown as DbQuestionRow[];
   const questions: Question[] = questionRows.map((q) => {
     const { sem, ay } = parseAcademicTerm(q.papers?.academic_term);
+
+    // Safely parse parts JSONB column
+    let parsedParts: unknown = q.parts;
+    if (typeof q.parts === "string") {
+      const trimmed = q.parts.trim();
+      if (!trimmed || trimmed === "[]" || trimmed === "{}") {
+        parsedParts = null;
+      } else {
+        try {
+          parsedParts = JSON.parse(trimmed);
+        } catch {
+          parsedParts = trimmed;
+        }
+      }
+    } else if (Array.isArray(q.parts) && q.parts.length === 0) {
+      parsedParts = null;
+    } else if (
+      q.parts &&
+      typeof q.parts === "object" &&
+      Object.keys(q.parts).length === 0
+    ) {
+      parsedParts = null;
+    }
+
+    const cleanPaperUrl = getGoogleDriveViewUrl(q.papers?.file_url?.trim());
+
     return {
       id: q.question_id,
       t: q.primary_topic_id || "",
@@ -261,11 +301,23 @@ export async function fetchCoursePracticeData(
       img: !!q.has_image_reference,
       paperId: q.paper_id ?? undefined,
       paperName: q.papers?.original_filename || q.paper_id || undefined,
-      paperUrl: q.papers?.file_url || null,
+      paperUrl: cleanPaperUrl,
       cognitiveLevel: q.cognitive_level || null,
       btLevel: q.bt_level_printed || null,
       moduleId: q.module_id ?? undefined,
       topicTitle: q.primary_topic_title || "",
+      parts: parsedParts,
+      sourcePage: q.source_page ?? null,
+      sourcePages:
+        Array.isArray(q.source_pages) && q.source_pages.length > 0
+          ? q.source_pages
+          : q.source_page
+          ? [q.source_page]
+          : [],
+      sourceFilename: q.source_filename || q.papers?.original_filename || null,
+      difficulty: q.difficulty || null,
+      hasImageReference: q.has_image_reference ?? false,
+      imageReference: q.image_reference || null,
     };
   });
 

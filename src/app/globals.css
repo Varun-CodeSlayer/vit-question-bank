@@ -1528,6 +1528,17 @@ footer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12p
   padding: 32px 0 72px;
   align-items: start;
 }
+.course-bank .cols.no-side {
+  display: flex;
+  justify-content: center;
+  grid-template-columns: none;
+  width: 100%;
+}
+.course-bank .cols.no-side .main-col {
+  width: 100%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
 .course-bank .side {
   display: flex;
   flex-direction: column;
@@ -1859,8 +1870,9 @@ footer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12p
   font-size: 16px;
   line-height: 1.6;
   color: var(--t1);
-  max-width: 76ch;
-  white-space: pre-line;
+  width: 100%;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 .course-bank .qimg {
   display: grid;
@@ -1874,6 +1886,135 @@ footer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12p
   text-align: center;
   font-size: 13px;
   color: var(--t2);
+}
+/* Sub-questions Parts Table */
+.course-bank .qparts-wrap {
+  width: 100%;
+  margin-top: 2px;
+}
+.course-bank .qparts-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+.course-bank .qparts-table-wrap.compact {
+  max-width: 380px;
+}
+.course-bank .qparts-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  text-align: left;
+}
+.course-bank .qparts-table th {
+  background: var(--chip);
+  color: var(--t2);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.course-bank .qparts-table th.th-left,
+.course-bank .qparts-table td.td-left {
+  text-align: left;
+}
+.course-bank .qparts-table th.th-center,
+.course-bank .qparts-table td.td-center {
+  text-align: center;
+}
+.course-bank .qparts-table th.th-right,
+.course-bank .qparts-table td.td-right {
+  text-align: right;
+  padding-right: 18px;
+}
+.course-bank .qparts-table td.td-center .qpart-content {
+  display: inline-block;
+  text-align: center;
+}
+.course-bank .qparts-table th.th-part {
+  width: 72px;
+  text-align: center;
+}
+.course-bank .qparts-table th.th-text {
+  text-align: left;
+}
+.course-bank .qparts-table th.th-marks {
+  width: 110px;
+  text-align: right;
+  padding-right: 18px;
+}
+.course-bank .qparts-table tr {
+  transition: background 0.15s ease;
+}
+.course-bank .qparts-table tbody tr:not(:last-child) td {
+  border-bottom: 1px solid var(--border);
+}
+.course-bank .qparts-table tbody tr:hover {
+  background: var(--hover-fill);
+}
+.course-bank .qparts-table td {
+  padding: 12px 14px;
+  vertical-align: top;
+  color: var(--t1);
+}
+.course-bank .qparts-table td.td-part {
+  text-align: center;
+  padding-top: 10px;
+}
+.course-bank .qpart-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 7px;
+  border-radius: 6px;
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--code);
+  background: var(--chip);
+  border: 1px solid var(--border);
+}
+.course-bank .qparts-table td.td-text {
+  line-height: 1.6;
+}
+.course-bank .qpart-content {
+  color: var(--t1);
+  white-space: pre-wrap;
+  word-break: break-word;
+  width: 100%;
+}
+.course-bank .qparts-table td.td-marks {
+  text-align: right;
+  padding-top: 10px;
+  padding-right: 18px;
+  white-space: nowrap;
+}
+.course-bank .qpart-marks-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--accent-text);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+}
+.course-bank .qpart-marks-dash {
+  color: var(--t2);
+  font-size: 13px;
+  padding-right: 8px;
 }
 .course-bank .qmeta {
   display: flex;
@@ -2103,6 +2244,9 @@ footer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12p
   .course-bank .fbtn { display: flex; }
   .course-bank .qcard { padding: 20px; }
   .course-bank .qtext { font-size: 15px; }
+  .course-bank .qparts-table { font-size: 13px; }
+  .course-bank .qparts-table td, .course-bank .qparts-table th { padding: 10px 10px; }
+  .course-bank .qpart-content { font-size: 13px; }
   .course-bank .mh { padding: 16px; gap: 12px; }
   .course-bank .mtot { display: none; }
   .course-bank .mcopy strong { font-size: 16px; }

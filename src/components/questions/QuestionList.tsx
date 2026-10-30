@@ -6,6 +6,7 @@ import {
   BADGE_ICON,
   BADGE_TEXT,
   getQuestionSourceFile,
+  parseGeneralTableData,
 } from "@/lib/question-data";
 
 export interface QuestionListProps {
@@ -129,6 +130,7 @@ export default function QuestionList({
           const badgeIcon = BADGE_ICON[q.cur];
           const badgeText = BADGE_TEXT[q.cur];
           const sourceName = getQuestionSourceFile(q);
+          const tableData = parseGeneralTableData(q.parts);
 
           return (
             <article
@@ -145,6 +147,9 @@ export default function QuestionList({
                 <span className="tag">{q.qt}</span>
                 {q.cognitiveLevel && (
                   <span className="tag">{q.cognitiveLevel}</span>
+                )}
+                {q.difficulty && (
+                  <span className="tag">{q.difficulty}</span>
                 )}
                 <span className="sp"></span>
                 <span className={`badge ${q.cur}`}>
@@ -180,6 +185,74 @@ export default function QuestionList({
                 </div>
               ) : (
                 <p className="qtext">{q.text}</p>
+              )}
+
+              {tableData && tableData.headers.length > 0 && tableData.rows.length > 0 && (
+                <div className="qparts-wrap" role="region" aria-label="Question table data">
+                  <div
+                    className={`qparts-table-wrap ${
+                      tableData.headers.length <= 5 &&
+                      tableData.rows.every((r) =>
+                        r.every((c) => String(c).length <= 20)
+                      )
+                        ? "compact"
+                        : ""
+                    }`}
+                  >
+                    <table className="qparts-table">
+                      <thead>
+                        <tr>
+                          {tableData.headers.map((h, hIdx) => {
+                            const align = tableData.alignments?.[hIdx] || "left";
+                            return (
+                              <th key={hIdx} className={`th-${align}`}>
+                                {h}
+                              </th>
+                            );
+                          })}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {tableData.rows.map((row, rIdx) => (
+                          <tr key={rIdx}>
+                            {row.map((cell, cIdx) => {
+                              const align = tableData.alignments?.[cIdx] || "left";
+                              const headerName =
+                                tableData.headers[cIdx]?.toLowerCase() || "";
+                              const isFirstCol = cIdx === 0;
+                              const isMarksCol = headerName === "marks";
+                              const isPartCol = headerName === "part";
+                              const isBadge =
+                                isPartCol ||
+                                (isFirstCol &&
+                                  tableData.headers.length > 1 &&
+                                  cell !== "—" &&
+                                  String(cell).length <= 4 &&
+                                  !isMarksCol);
+
+                              return (
+                                <td key={cIdx} className={`td-${align}`}>
+                                  {isBadge ? (
+                                    <span className="qpart-badge">{cell}</span>
+                                  ) : isMarksCol && cell !== "—" ? (
+                                    <span className="qpart-marks-chip">
+                                      {cell}
+                                      {String(cell).toLowerCase().includes("mark")
+                                        ? ""
+                                        : " Marks"}
+                                    </span>
+                                  ) : (
+                                    <div className="qpart-content">{cell}</div>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
               )}
 
               <div className="qmeta">
@@ -220,6 +293,15 @@ export default function QuestionList({
                     <path d="M10 9H8" />
                   </svg>
                   {sourceName}
+                  {q.sourcePages && q.sourcePages.length > 0
+                    ? ` · ${
+                        q.sourcePages.length > 1
+                          ? `Pages ${q.sourcePages.join(", ")}`
+                          : `Page ${q.sourcePages[0]}`
+                      }`
+                    : q.sourcePage
+                    ? ` · Page ${q.sourcePage}`
+                    : ""}
                 </span>
 
                 <div className="acts">
