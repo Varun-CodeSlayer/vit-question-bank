@@ -75,7 +75,6 @@ interface DbQuestionRow {
   question_type_source?: string | null;
   difficulty?: string | null;
   difficulty_source?: string | null;
-  mark_source?: string | null;
   bt_level_printed?: number | null;
   cognitive_level?: string | null;
   cognitive_level_source?: string | null;
@@ -83,7 +82,6 @@ interface DbQuestionRow {
   primary_topic_id?: string | null;
   primary_topic_title?: string | null;
   topic_mapping_source?: string | null;
-  syllabus_relevance_explanation?: string | null;
   has_image_reference?: boolean | null;
   image_reference?: string | null;
   papers?: DbPaperRow | null;
@@ -318,6 +316,7 @@ export async function fetchCoursePracticeData(
       difficulty: q.difficulty || null,
       hasImageReference: q.has_image_reference ?? false,
       imageReference: q.image_reference || null,
+      courseId: q.course_id || dbCourse.course_id,
     };
   });
 

@@ -7,7 +7,11 @@ import {
   BADGE_TEXT,
   getQuestionSourceFile,
   parseGeneralTableData,
+  parseQuestionText,
+  parseImageStoragePath,
+  GeneralTableData,
 } from "@/lib/question-data";
+import QuestionImage from "./QuestionImage";
 
 export interface QuestionListProps {
   questions: Question[];
@@ -16,53 +20,117 @@ export interface QuestionListProps {
   isLive?: boolean;
 }
 
-const DFA = (
-  <svg
-    viewBox="0 0 360 120"
-    width="100%"
-    style={{ maxWidth: "360px" }}
-    role="img"
-    aria-label="State diagram of a deterministic finite automaton with states q0, q1 and q2"
-  >
-    <defs>
-      <marker
-        id="ar"
-        viewBox="0 0 10 10"
-        refX="9"
-        refY="5"
-        markerWidth="7"
-        markerHeight="7"
-        orient="auto-start-reverse"
-      >
-        <path d="M0 0 10 5 0 10z" fill="currentColor" />
-      </marker>
-    </defs>
-    <g fill="none" stroke="currentColor" strokeWidth="1.6" style={{ color: "var(--t3)" }}>
-      <path d="M10 60h42" markerEnd="url(#ar)" />
-      <circle cx="76" cy="60" r="24" />
-      <circle cx="196" cy="60" r="24" />
-      <circle cx="316" cy="60" r="24" />
-      <circle cx="316" cy="60" r="19" />
-      <path d="M100 60h72" markerEnd="url(#ar)" />
-      <path d="M220 60h72" markerEnd="url(#ar)" />
-      <path d="M190 36c-4-26 16-26 12 0" markerEnd="url(#ar)" />
-    </g>
-    <g
-      fill="currentColor"
-      fontFamily="JetBrains Mono, monospace"
-      fontSize="13"
-      textAnchor="middle"
-      style={{ color: "var(--t3)" }}
-    >
-      <text x="76" y="65">q0</text>
-      <text x="196" y="65">q1</text>
-      <text x="316" y="65">q2</text>
-      <text x="136" y="50">0</text>
-      <text x="256" y="50">1</text>
-      <text x="196" y="6">0</text>
-    </g>
-  </svg>
-);
+function QuestionTable({
+  tableData,
+  ariaLabel = "Question table data",
+}: {
+  tableData: GeneralTableData;
+  ariaLabel?: string;
+}) {
+  if (!tableData || tableData.headers.length === 0 || tableData.rows.length === 0) {
+    return null;
+  }
+  const isCompact =
+    tableData.headers.length <= 5 &&
+    tableData.rows.every((r) => r.every((c) => String(c).length <= 20));
+
+  return (
+    <div className="qparts-wrap" role="region" aria-label={ariaLabel}>
+      <div className={`qparts-table-wrap ${isCompact ? "compact" : ""}`}>
+        <table className="qparts-table">
+          <thead>
+            <tr>
+              {tableData.headers.map((h, hIdx) => {
+                const align = tableData.alignments?.[hIdx] || "left";
+                return (
+                  <th key={hIdx} className={`th-${align}`}>
+                    {h}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            {tableData.rows.map((row, rIdx) => (
+              <tr key={rIdx}>
+                {row.map((cell, cIdx) => {
+                  const align = tableData.alignments?.[cIdx] || "left";
+                  const headerName =
+                    tableData.headers[cIdx]?.toLowerCase().trim() || "";
+                  const isMarksCol =
+                    headerName.includes("mark") || headerName.includes("score");
+                  const isPartCol =
+                    headerName === "part" || headerName === "subpart";
+                  const isBadge =
+                    !isMarksCol &&
+                    (isPartCol ||
+                      (cIdx === 0 &&
+                        tableData.headers.length > 1 &&
+                        cell !== "—" &&
+                        String(cell).length <= 4));
+
+                  const marksText = isMarksCol
+                    ? `${cell}${
+                        String(cell).toLowerCase().includes("mark")
+                          ? ""
+                          : " Marks"
+                      }`
+                    : "";
+
+                  return (
+                    <td
+                      key={cIdx}
+                      className={`td-${align}${isMarksCol ? " td-marks" : ""}`}
+                    >
+                      {isBadge ? (
+                        <span className="qpart-badge">{cell}</span>
+                      ) : isMarksCol && cell !== "—" ? (
+                        <span
+                          className="qpart-marks-chip"
+                          style={{
+                            background: "transparent",
+                            backgroundColor: "transparent",
+                            border: "none",
+                            boxShadow: "none",
+                            outline: "none",
+                            padding: 0,
+                            color: "var(--accent-text)",
+                            fontWeight: 600,
+                            fontSize: "13px",
+                            whiteSpace: "nowrap",
+                            display: "inline-block",
+                          }}
+                        >
+                          {marksText}
+                        </span>
+                      ) : (
+                        <div className="qpart-content">{cell}</div>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function getDifficultyClass(diff?: string | null): string {
+  if (!diff) return "";
+  const d = diff.toLowerCase().trim();
+  if (d.includes("easy")) return "diff-easy";
+  if (d.includes("med") || d.includes("mod")) return "diff-medium";
+  if (d.includes("hard") || d.includes("diff")) return "diff-hard";
+  return "";
+}
+
+function formatDifficulty(diff: string): string {
+  const d = diff.trim();
+  return d.charAt(0).toUpperCase() + d.slice(1).toLowerCase();
+}
 
 export default function QuestionList({
   questions,
@@ -130,7 +198,11 @@ export default function QuestionList({
           const badgeIcon = BADGE_ICON[q.cur];
           const badgeText = BADGE_TEXT[q.cur];
           const sourceName = getQuestionSourceFile(q);
-          const tableData = parseGeneralTableData(q.parts);
+          const textSegments = parseQuestionText(q.text);
+          const partsTableData = parseGeneralTableData(q.parts);
+          const imagePath = (q.hasImageReference || q.img)
+            ? parseImageStoragePath(q.imageReference)
+            : null;
 
           return (
             <article
@@ -149,7 +221,9 @@ export default function QuestionList({
                   <span className="tag">{q.cognitiveLevel}</span>
                 )}
                 {q.difficulty && (
-                  <span className="tag">{q.difficulty}</span>
+                  <span className={`tag ${getDifficultyClass(q.difficulty)}`}>
+                    {formatDifficulty(q.difficulty)}
+                  </span>
                 )}
                 <span className="sp"></span>
                 <span className={`badge ${q.cur}`}>
@@ -174,86 +248,55 @@ export default function QuestionList({
                 </span>
               </div>
 
-              {q.img ? (
-                <div
-                  className="qimg"
-                  role="group"
-                  aria-label="Question image"
-                >
-                  {DFA}
-                  <span>Scanned question image — placeholder diagram</span>
-                </div>
+              {/* 1. Question Text first (with embedded markdown tables if any) */}
+              {textSegments.length > 0 ? (
+                textSegments.map((seg, sIdx) => {
+                  if (seg.type === "text") {
+                    return (
+                      <p key={sIdx} className="qtext">
+                        {seg.text}
+                      </p>
+                    );
+                  }
+                  if (seg.type === "table") {
+                    return (
+                      <QuestionTable
+                        key={sIdx}
+                        tableData={seg.data}
+                        ariaLabel="Question table"
+                      />
+                    );
+                  }
+                  return null;
+                })
               ) : (
-                <p className="qtext">{q.text}</p>
+                q.text && <p className="qtext">{q.text}</p>
               )}
 
-              {tableData && tableData.headers.length > 0 && tableData.rows.length > 0 && (
-                <div className="qparts-wrap" role="region" aria-label="Question table data">
-                  <div
-                    className={`qparts-table-wrap ${
-                      tableData.headers.length <= 5 &&
-                      tableData.rows.every((r) =>
-                        r.every((c) => String(c).length <= 20)
-                      )
-                        ? "compact"
-                        : ""
-                    }`}
-                  >
-                    <table className="qparts-table">
-                      <thead>
-                        <tr>
-                          {tableData.headers.map((h, hIdx) => {
-                            const align = tableData.alignments?.[hIdx] || "left";
-                            return (
-                              <th key={hIdx} className={`th-${align}`}>
-                                {h}
-                              </th>
-                            );
-                          })}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tableData.rows.map((row, rIdx) => (
-                          <tr key={rIdx}>
-                            {row.map((cell, cIdx) => {
-                              const align = tableData.alignments?.[cIdx] || "left";
-                              const headerName =
-                                tableData.headers[cIdx]?.toLowerCase() || "";
-                              const isFirstCol = cIdx === 0;
-                              const isMarksCol = headerName === "marks";
-                              const isPartCol = headerName === "part";
-                              const isBadge =
-                                isPartCol ||
-                                (isFirstCol &&
-                                  tableData.headers.length > 1 &&
-                                  cell !== "—" &&
-                                  String(cell).length <= 4 &&
-                                  !isMarksCol);
+              {/* 2. Parts (JSONB) table generator after question_text */}
+              {partsTableData && (
+                <QuestionTable
+                  tableData={partsTableData}
+                  ariaLabel="Question parts table"
+                />
+              )}
 
-                              return (
-                                <td key={cIdx} className={`td-${align}`}>
-                                  {isBadge ? (
-                                    <span className="qpart-badge">{cell}</span>
-                                  ) : isMarksCol && cell !== "—" ? (
-                                    <span className="qpart-marks-chip">
-                                      {cell}
-                                      {String(cell).toLowerCase().includes("mark")
-                                        ? ""
-                                        : " Marks"}
-                                    </span>
-                                  ) : (
-                                    <div className="qpart-content">{cell}</div>
-                                  )}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+              {/* 3. Image at the bottom after question_text and table */}
+              {imagePath ? (
+                <QuestionImage
+                  key={imagePath}
+                  storagePath={imagePath}
+                  questionNumber={q.n}
+                />
+              ) : q.hasImageReference && q.imageReference ? (
+                <div className="qimage-note" role="note" aria-label="Image reference note">
+                  <svg className="ic s" viewBox="0 0 24 24" aria-hidden="true">
+                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                    <circle cx="9" cy="9" r="2" />
+                  </svg>
+                  <span>{q.imageReference}</span>
                 </div>
-              )}
+              ) : null}
 
               <div className="qmeta">
                 <span>

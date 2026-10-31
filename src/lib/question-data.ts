@@ -209,7 +209,7 @@ export function extractNestedTransitionTable(
   return obj as Record<string, Record<string, unknown>>;
 }
 
-function parseMarkdownTable(text: string): GeneralTableData | null {
+export function parseMarkdownTable(text: string): GeneralTableData | null {
   const lines = text
     .split("\n")
     .map((l) => l.trim())
@@ -231,6 +231,71 @@ function parseMarkdownTable(text: string): GeneralTableData | null {
   if (rows.length === 0) return null;
   const alignments = computeAlignments(headers, rows);
   return { headers, rows, alignments };
+}
+
+export type QuestionTextSegment =
+  | { type: "text"; text: string }
+  | { type: "table"; data: GeneralTableData };
+
+export function parseImageStoragePath(imageReference?: string | null): string | null {
+  if (!imageReference) return null;
+  const match = imageReference.match(/Storage path in bucket:\s*([^\s"'`]+)/i);
+  if (match) {
+    return match[1].replace(/^[/\\]+/, "").replace(/["'.)]+$/, "").trim();
+  }
+  const directPathMatch = imageReference.trim().match(/^([A-Za-z0-9_-]+\/[^\s"'`]+\.(png|jpe?g|webp|svg))$/i);
+  if (directPathMatch) {
+    return directPathMatch[1].replace(/^[/\\]+/, "").trim();
+  }
+  return null;
+}
+
+export function parseQuestionText(text: string): QuestionTextSegment[] {
+  if (!text) return [];
+  const lines = text.split("\n");
+  const segments: QuestionTextSegment[] = [];
+  let currentTextLines: string[] = [];
+  let currentTableLines: string[] = [];
+
+  const flushText = () => {
+    if (currentTextLines.length > 0) {
+      const t = currentTextLines.join("\n");
+      if (t.trim()) {
+        segments.push({ type: "text", text: t });
+      }
+      currentTextLines = [];
+    }
+  };
+
+  const flushTable = () => {
+    if (currentTableLines.length > 0) {
+      const tableData = parseMarkdownTable(currentTableLines.join("\n"));
+      if (tableData) {
+        segments.push({ type: "table", data: tableData });
+      } else {
+        currentTextLines.push(...currentTableLines);
+      }
+      currentTableLines = [];
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith("|") || (trimmed.includes("|") && trimmed.split("|").length >= 3)) {
+      flushText();
+      currentTableLines.push(trimmed);
+    } else {
+      flushTable();
+      currentTextLines.push(line);
+    }
+  }
+
+  flushTable();
+  flushText();
+
+  return segments;
 }
 
 export function parseGeneralTableData(data: unknown): GeneralTableData | null {
@@ -395,6 +460,7 @@ export interface Question {
   difficulty?: string | null;
   hasImageReference?: boolean | null;
   imageReference?: string | null;
+  courseId?: string;
 }
 
 export interface CourseInfo {

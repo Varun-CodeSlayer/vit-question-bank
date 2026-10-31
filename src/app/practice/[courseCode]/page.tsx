@@ -7,7 +7,7 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
-  const codes = new Set<string>(["BACSE201", "BCSE384L"]);
+  const codes = new Set<string>(["BACSE201", "BCSE384L", "BACSE103"]);
   try {
     const { data } = await supabase.from("courses").select("course_code");
     data?.forEach((c) => {
