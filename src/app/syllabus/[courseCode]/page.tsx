@@ -9,18 +9,16 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
+  const codes = new Set<string>(["BACSE201", "BACSE103", "BCSE384L"]);
   try {
     const { data } = await supabase.from("courses").select("course_code");
-    if (!data) return [];
-    return data
-      .filter((c) => Boolean(c.course_code))
-      .map((c) => ({
-        courseCode: c.course_code.trim(),
-      }));
+    data?.forEach((c) => {
+      if (c.course_code) codes.add(c.course_code.trim());
+    });
   } catch (err) {
     console.warn("Could not fetch course codes for static params:", err);
-    return [];
   }
+  return Array.from(codes).map((courseCode) => ({ courseCode }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {

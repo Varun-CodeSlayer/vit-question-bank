@@ -16,81 +16,21 @@ export default function QuestionImage({
   const [status, setStatus] = useState<"loading" | "loaded" | "error">(() =>
     storagePath ? "loading" : "error"
   );
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [requestedUrl, setRequestedUrl] = useState<string | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
-  useEffect(() => {
-    let isCancelled = false;
-
-    async function loadImage() {
-      // Clean and encode path segments safely without double-encoding
-      const cleanPath = storagePath
+  // Clean path safely without double-encoding
+  const cleanPath = storagePath
+    ? storagePath
         .split("/")
         .map((segment) => encodeURIComponent(decodeURIComponent(segment)))
-        .join("/");
+        .join("/")
+    : "";
 
-      // Set to true if the 'Question images' bucket is made public in Supabase
-      const IS_BUCKET_PUBLIC = false;
+  const { data } = supabase.storage
+    .from("Question images")
+    .getPublicUrl(cleanPath);
 
-      try {
-        if (IS_BUCKET_PUBLIC) {
-          const { data } = supabase.storage
-            .from("Question images")
-            .getPublicUrl(cleanPath);
-          const url = data?.publicUrl || null;
-          console.info(
-            `[QuestionImage] Requested public URL for ${questionNumber}:`,
-            url
-          );
-          if (isCancelled) return;
-          setRequestedUrl(url);
-          if (url) {
-            setImageUrl(url);
-          } else {
-            setStatus("error");
-          }
-        } else {
-          // Default: 3600 seconds (1 hour) signed URL for private bucket
-          const { data, error } = await supabase.storage
-            .from("Question images")
-            .createSignedUrl(cleanPath, 3600);
-
-          if (isCancelled) return;
-
-          if (error || !data?.signedUrl) {
-            console.warn(
-              `[QuestionImage] Failed to create signed URL for path "${storagePath}":`,
-              error
-            );
-            const fallbackUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL || "https://xykkmrzuvoqqzjtnyqmc.supabase.co"}/storage/v1/object/sign/Question%20images/${cleanPath}`;
-            setRequestedUrl(fallbackUrl);
-            setStatus("error");
-            return;
-          }
-
-          console.info(
-            `[QuestionImage] Successfully requested signed URL for ${questionNumber}:`,
-            data.signedUrl
-          );
-          setRequestedUrl(data.signedUrl);
-          setImageUrl(data.signedUrl);
-        }
-      } catch (err) {
-        console.warn(`[QuestionImage] Unexpected error loading "${storagePath}":`, err);
-        if (isCancelled) return;
-        setStatus("error");
-      }
-    }
-
-    if (storagePath) {
-      loadImage();
-    }
-
-    return () => {
-      isCancelled = true;
-    };
-  }, [storagePath, questionNumber]);
+  const imageUrl = data?.publicUrl || null;
 
   // Handle ESC key to close lightbox
   useEffect(() => {
@@ -130,7 +70,6 @@ export default function QuestionImage({
             <strong>Image unavailable</strong>
             <small>
               The diagram for {questionNumber} ({storagePath}) is not yet available in storage.
-              {requestedUrl && ` [Requested: ${requestedUrl}]`}
             </small>
           </div>
         </div>

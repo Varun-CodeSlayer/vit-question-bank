@@ -282,21 +282,13 @@ export default function QuestionList({
               )}
 
               {/* 3. Image at the bottom after question_text and table */}
-              {imagePath ? (
+              {imagePath && (
                 <QuestionImage
                   key={imagePath}
                   storagePath={imagePath}
                   questionNumber={q.n}
                 />
-              ) : q.hasImageReference && q.imageReference ? (
-                <div className="qimage-note" role="note" aria-label="Image reference note">
-                  <svg className="ic s" viewBox="0 0 24 24" aria-hidden="true">
-                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
-                    <circle cx="9" cy="9" r="2" />
-                  </svg>
-                  <span>{q.imageReference}</span>
-                </div>
-              ) : null}
+              )}
 
               <div className="qmeta">
                 <span>

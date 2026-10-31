@@ -134,7 +134,7 @@ export function formatCellValue(val: unknown): string {
 }
 
 export function inferRowHeader(keys: string[]): string {
-  if (keys.length === 0) return "State";
+  if (keys.length === 0) return "Part";
   const allStates = keys.every(
     (k) => /^[A-Z]$/i.test(k) || /^q\d+$/i.test(k) || /^s\d+$/i.test(k)
   );
@@ -143,7 +143,14 @@ export function inferRowHeader(keys: string[]): string {
   if (allProcesses) return "Process";
   const allNumbers = keys.every((k) => /^\d+$/.test(k));
   if (allNumbers) return "#";
-  return "State";
+  const allParts = keys.every(
+    (k) =>
+      /^\(?[a-zA-Z0-9]+\)?$/.test(k) &&
+      (/^[ivxlcdm]+$/i.test(k.replace(/[()]/g, "")) ||
+        /^[a-z]$/i.test(k.replace(/[()]/g, "")))
+  );
+  if (allParts) return "Part";
+  return "Part";
 }
 
 export function computeAlignments(
@@ -298,6 +305,26 @@ export function parseQuestionText(text: string): QuestionTextSegment[] {
   return segments;
 }
 
+export function parseTableObject(obj: unknown): GeneralTableData | null {
+  if (!obj || typeof obj !== "object") return null;
+  const o = obj as Record<string, unknown>;
+  const cols = (o.columns || o.headers) as unknown[];
+  const rws = o.rows as unknown[];
+  if (Array.isArray(cols) && Array.isArray(rws)) {
+    const headers = cols.map(String);
+    const rows = rws.map((row) =>
+      Array.isArray(row)
+        ? row.map((c) => formatCellValue(c))
+        : [formatCellValue(row)]
+    );
+    if (headers.length > 0 && rows.length > 0) {
+      const alignments = computeAlignments(headers, rows);
+      return { headers, rows, alignments };
+    }
+  }
+  return null;
+}
+
 export function parseGeneralTableData(data: unknown): GeneralTableData | null {
   if (!data) return null;
 
@@ -314,6 +341,14 @@ export function parseGeneralTableData(data: unknown): GeneralTableData | null {
       return null;
     }
   }
+
+  // 0. Check explicit table object { type: "table", columns: [...], rows: [[...]] }
+  const tableObj =
+    parseTableObject(parsed) ||
+    (Array.isArray(parsed) && parsed.length === 1
+      ? parseTableObject(parsed[0])
+      : null);
+  if (tableObj) return tableObj;
 
   // 1. Check if this is a nested transition table (direct object or array-wrapped)
   const nestedMap = extractNestedTransitionTable(parsed);

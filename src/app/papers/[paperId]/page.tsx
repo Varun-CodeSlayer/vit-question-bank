@@ -9,18 +9,16 @@ type PageProps = {
 };
 
 export async function generateStaticParams() {
+  const ids = new Set<string>(["BACSE103-G1-CAT1", "BACSE201-B1-CAT1"]);
   try {
     const { data } = await supabase.from("papers").select("paper_id");
-    if (!data) return [];
-    return data
-      .filter((p) => Boolean(p.paper_id))
-      .map((p) => ({
-        paperId: p.paper_id.trim(),
-      }));
+    data?.forEach((p) => {
+      if (p.paper_id) ids.add(p.paper_id.trim());
+    });
   } catch (err) {
     console.warn("Could not fetch paper IDs for static params:", err);
-    return [];
   }
+  return Array.from(ids).map((paperId) => ({ paperId }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
