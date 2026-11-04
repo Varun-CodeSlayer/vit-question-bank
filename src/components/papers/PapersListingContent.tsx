@@ -119,8 +119,8 @@ export default function PapersListingContent() {
       }
     });
 
-    // Also include standard exam types: CAT-1, CAT-2, FAT, Quiz
-    const standardExams = ["CAT-1", "CAT-2", "FAT", "Quiz"];
+    // Also include standard exam types: CAT-1, CAT-2, FAT
+    const standardExams = ["CAT-1", "CAT-2", "FAT"];
     standardExams.forEach((e) => examTypes.add(e));
 
     return {
@@ -368,8 +368,6 @@ export default function PapersListingContent() {
                       <option value="CAT-1">CAT-1</option>
                       <option value="CAT-2">CAT-2</option>
                       <option value="FAT">FAT</option>
-                      <option value="Quiz">Quiz</option>
-                      <option value="Other">Other</option>
                     </select>
                   </div>
                 </div>
