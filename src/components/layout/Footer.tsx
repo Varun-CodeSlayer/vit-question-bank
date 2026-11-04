@@ -108,7 +108,7 @@ export default function Footer({ showCreator = true }: FooterProps) {
           </div>
           <div>
             <h3 className="grad">Varun</h3>
-            <p className="r">Student Developer and Designer</p>
+            <p className="r">Student Developer</p>
             <p style={{ fontSize: "16px" }}>VIT Chennai</p>
             <p>Built by a student, for students.</p>
             <div className="soc">
