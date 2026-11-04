@@ -20,7 +20,7 @@ export default function SyllabusListingContent() {
   const [unavailableModalItem, setUnavailableModalItem] = useState<SyllabusItem | null>(null);
 
   // Derive search from URL
-  const urlSearch = searchParams.get("q") || "";
+  const urlSearch = searchParams.get("q") || searchParams.get("course") || "";
   const [searchQuery, setSearchQuery] = useState(urlSearch);
   const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch);
 

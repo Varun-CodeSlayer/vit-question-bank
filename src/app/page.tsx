@@ -232,7 +232,7 @@ export default function Home() {
     ? `/papers?course=${encodeURIComponent(selectedCourse.code)}`
     : "/papers";
   const syllabusHref = selectedCourse
-    ? `/syllabus?course=${encodeURIComponent(selectedCourse.code)}`
+    ? `/syllabus/${encodeURIComponent(selectedCourse.code)}`
     : "/syllabus";
 
   // Derive marquee chips strictly from database courses
@@ -367,6 +367,7 @@ export default function Home() {
                 aria-label="Search courses by code or name"
                 role="combobox"
                 aria-expanded={isDropdownOpen}
+                aria-controls="home-search-dropdown-list"
                 aria-autocomplete="list"
                 autoComplete="off"
               />
@@ -412,7 +413,11 @@ export default function Home() {
 
             {/* Dropdown Results */}
             {isDropdownOpen && (
-              <div className="home-search-dropdown" role="listbox">
+              <div
+                className="home-search-dropdown"
+                role="listbox"
+                id="home-search-dropdown-list"
+              >
                 <div className="home-search-dropdown-header">
                   <span>
                     {loadingCourses
@@ -598,7 +603,7 @@ export default function Home() {
           <div className="fgrid">
             <Link
               className="fc rv"
-              href="/practice"
+              href={practiceHref}
               style={
                 {
                   "--d": "0",
@@ -633,7 +638,7 @@ export default function Home() {
 
             <Link
               className="fc rv"
-              href="/papers"
+              href={papersHref}
               style={
                 {
                   "--d": "1",
@@ -670,7 +675,7 @@ export default function Home() {
 
             <Link
               className="fc rv"
-              href="/syllabus"
+              href={syllabusHref}
               style={
                 {
                   "--d": "2",
