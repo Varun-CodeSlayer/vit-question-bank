@@ -765,24 +765,24 @@ export default function Home() {
               <div className="tile core rv" style={{ "--c": "#5595ff", "--c2": "#a183ff", "--d": "0" } as React.CSSProperties}>
                 <div className="th">
                   <span className="ib"><svg className="i"><use href="#tree" /></svg></span>
-                  <h3>Topic-wise and module-wise practice</h3>
+                  <h3>Topic-wise and Module-wise</h3>
                 </div>
-                <p>Practise questions from exactly the topic or module you just studied, without scanning an entire paper.</p>
+                <p>Practise questions organised by modules and topics to focus on specific areas of your syllabus.</p>
                 <span className="pill">Core differentiator</span>
               </div>
               <div className="tile rv" style={{ "--c": "#43c99b", "--c2": "#43cde4", "--d": "1" } as React.CSSProperties}>
                 <div className="th">
                   <span className="ib"><svg className="i"><use href="#map" /></svg></span>
-                  <h3>Campus-specific question banks</h3>
+                  <h3>VIT Chennai-Specific Questions</h3>
                 </div>
-                <p>Questions organised separately for VIT Chennai, Vellore, AP and more, since patterns differ by campus.</p>
+                <p>Access question papers collected exclusively from VIT Chennai examinations.</p>
               </div>
               <div className="tile rv" style={{ "--c": "#a183ff", "--c2": "#e885b9", "--d": "2" } as React.CSSProperties}>
                 <div className="th">
                   <span className="ib"><svg className="i"><use href="#route" /></svg></span>
-                  <h3>Curriculum-aware mapping</h3>
+                  <h3>Curriculum-Aware Mapping</h3>
                 </div>
-                <p>Older questions are mapped to topics in the new curriculum, so past papers stay useful.</p>
+                <p>Explore questions mapped to the current VIT Chennai Academic Curriculum (ACE).</p>
               </div>
               <div className="tile rv" style={{ "--c": "#e8b452", "--c2": "#f59e63", "--d": "3" } as React.CSSProperties}>
                 <div className="th">
@@ -806,8 +806,8 @@ export default function Home() {
                 <p>Practise question by question, then switch to full-paper downloads for exam-style prep.</p>
               </div>
               <div className="stats">
-                <div className="stat"><b className="grad">100+</b><span>Questions tagged</span></div>
-                <div className="stat"><b className="grad">10+</b><span>Courses</span></div>
+                <div className="stat"><b className="grad">200+</b><span>Questions tagged</span></div>
+                <div className="stat"><b className="grad">50+</b><span>Courses</span></div>
                 <div className="stat"><b className="grad">1</b><span>Campuses</span></div>
               </div>
             </div>
