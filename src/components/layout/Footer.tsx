@@ -3,6 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 export interface FooterProps {
   showCreator?: boolean;
@@ -51,12 +52,13 @@ export default function Footer({ showCreator = true }: FooterProps) {
         </div>
         <div className="mid">
           <div className="brand">
-            <span className="logo">
-              <svg className="i">
-                <use href="#cap" />
-              </svg>
-            </span>
-            [SITE NAME]
+            <Image
+              src="/prepninja-logo.png"
+              alt="PrepNinja"
+              width={122}
+              height={24}
+              className="brand-logo-img"
+            />
           </div>
           <div className="fl">
             <Link href="/privacy">Privacy</Link>
@@ -89,7 +91,7 @@ export default function Footer({ showCreator = true }: FooterProps) {
         </div>
       </div>
       <p className="copy">
-        (c) 2026 [SITE NAME]. Not affiliated with VIT. Question papers belong to their respective owners.
+        (c) 2026 PrepNinja. Not affiliated with VIT. Question papers belong to their respective owners.
       </p>
     </footer>
   );

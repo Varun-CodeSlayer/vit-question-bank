@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { fetchCoursesWithCounts } from "@/lib/course-service";
 
 interface CourseItem {
@@ -283,8 +284,14 @@ export default function Home() {
 
       <header className="nav">
         <a className="brand" href="#top">
-          <span className="logo"><svg className="i"><use href="#cap" /></svg></span>
-          [SITE NAME]
+          <Image
+            src="/prepninja-logo.png"
+            alt="PrepNinja"
+            width={153}
+            height={30}
+            className="brand-logo-img"
+            priority
+          />
         </a>
         <nav className="links" aria-label="Primary">
           <a className="on" href="#top" aria-current="page"><svg className="i"><use href="#home" /></svg>Home</a>
@@ -330,11 +337,6 @@ export default function Home() {
           <span className="sym" style={{ left: "1144px", top: "130px", fontSize: "38px" }} aria-hidden="true">∑</span>
           <span className="sym" style={{ left: "1104px", top: "540px", fontSize: "22px" }} aria-hidden="true">ƒ(x)</span>
           <span className="sym" style={{ left: "173px", top: "466px", fontSize: "22px" }} aria-hidden="true">x² + y²</span>
-
-          <div className="hbrand">
-            <span className="logo lg"><svg className="i"><use href="#cap" /></svg></span>
-            <span>[SITE <span className="grad">NAME]</span></span>
-          </div>
 
           <h1>
             <span className="grad">Practice Smarter,</span>
@@ -754,7 +756,18 @@ export default function Home() {
         <section className="sec why">
           <div className="head rv">
             <h2>
-              Why&nbsp;<em className="grad">[SITE NAME]</em>?
+              <span className="why-heading-content">
+                Why{" "}
+                <Image
+                  src="/prepninja-logo.png"
+                  alt="PrepNinja"
+                  width={276}
+                  height={54}
+                  className="why-logo-img"
+                  priority
+                />{" "}
+                ?
+              </span>
             </h2>
             <p>
               Most platforms hand you a full paper PDF and wish you luck. We let you practise exactly what you just studied.
@@ -875,8 +888,13 @@ export default function Home() {
               </div>
               <div className="mid">
                 <div className="brand">
-                  <span className="logo"><svg className="i"><use href="#cap" /></svg></span>
-                  [SITE NAME]
+                  <Image
+                    src="/prepninja-logo.png"
+                    alt="PrepNinja"
+                    width={122}
+                    height={24}
+                    className="brand-logo-img"
+                  />
                 </div>
                 <div className="fl">
                   <Link href="/privacy">Privacy</Link>
@@ -900,7 +918,7 @@ export default function Home() {
                 </a>
               </div>
             </div>
-            <p className="copy">(c) 2026 [SITE NAME]. Not affiliated with VIT. Question papers belong to their respective owners.</p>
+            <p className="copy">(c) 2026 PrepNinja. Not affiliated with VIT. Question papers belong to their respective owners.</p>
           </footer>
         </section>
       </main>

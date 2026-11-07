@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 export interface NavbarProps {
@@ -54,12 +55,14 @@ export default function Navbar({
   return (
     <header className="nav">
       <Link className="brand" href={isHome ? "#top" : "/"}>
-        <span className="logo">
-          <svg className="i">
-            <use href="#cap" />
-          </svg>
-        </span>
-        [SITE NAME]
+        <Image
+          src="/prepninja-logo.png"
+          alt="PrepNinja"
+          width={153}
+          height={30}
+          className="brand-logo-img"
+          priority
+        />
       </Link>
       <nav className="links" aria-label="Primary">
         <Link

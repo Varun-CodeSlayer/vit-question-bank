@@ -17,7 +17,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "[SITE NAME] – Practice Smarter, Topic by Topic",
+  title: "PrepNinja – Practice Smarter, Topic by Topic",
   description: "Module-wise and topic-wise previous-year questions, built for your campus.",
   icons: {
     icon: [

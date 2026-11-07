@@ -35,7 +35,7 @@ export default function PrivacyPage() {
           <article className="legal-card">
             <div className="legal-intro">
               <p>
-                Welcome to [SITE NAME]. We value your privacy and are committed
+                Welcome to PrepNinja. We value your privacy and are committed
                 to protecting the information you share while using our website.
               </p>
               <p>
@@ -274,7 +274,7 @@ export default function PrivacyPage() {
                   Policy, contact:
                 </p>
                 <div className="legal-contact-block">
-                  <div>[SITE NAME]</div>
+                  <div>PrepNinja</div>
                   <div>Email: varun.s.spiderman@gmail.com </div>
                   <div>Website: https://student-portfolio-varun.vercel.app/#contact </div>
                 </div>
@@ -282,7 +282,7 @@ export default function PrivacyPage() {
             </div>
 
             <div className="legal-disclaimer-box">
-              [ SITE NAME ] is an independent educational resource and is not
+              PrepNinja is an independent educational resource and is not
               officially affiliated with Vellore Institute of Technology (VIT).
             </div>
           </article>
