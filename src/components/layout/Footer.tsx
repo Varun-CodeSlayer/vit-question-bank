@@ -2,6 +2,7 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
+import Link from "next/link";
 
 export interface FooterProps {
   showCreator?: boolean;
@@ -58,13 +59,19 @@ export default function Footer({ showCreator = true }: FooterProps) {
             [SITE NAME]
           </div>
           <div className="fl">
-            <a href="#">Privacy</a>
+            <Link href="/privacy">Privacy</Link>
             <s>|</s>
-            <a href="#">Terms</a>
+            <Link href="/terms">Terms</Link>
             <s>|</s>
             <a href="#">Contact</a>
             <s>|</s>
-            <a href="#">Report an Issue</a>
+            <a
+              href="https://forms.gle/ARB8oVTAN8XgAju17"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Report an Issue
+            </a>
           </div>
         </div>
         <div className="conn">

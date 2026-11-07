@@ -879,14 +879,14 @@ export default function Home() {
                   [SITE NAME]
                 </div>
                 <div className="fl">
-                  <a href="#">Privacy</a>
+                  <Link href="/privacy">Privacy</Link>
                   <s>|</s>
-                  <a href="#">Terms</a>
+                  <Link href="/terms">Terms</Link>
                   <s>|</s>
                   <a href="#">Contact</a>
                   <s>|</s>
                   <a
-                    href="https://docs.google.com/forms/d/e/1FAIpQLSeqNSz975pjRQkkBi3z899RsckA9tf-KsXVkZxZOg_p8kAm8A/viewform?usp=dialog"
+                    href="https://forms.gle/ARB8oVTAN8XgAju17"
                     target="_blank"
                     rel="noopener noreferrer"
                   >

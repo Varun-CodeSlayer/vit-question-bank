@@ -193,7 +193,7 @@ export default function SyllabusViewContent({ courseCode }: SyllabusViewContentP
                     ) : null}
 
                     <a
-                      href="https://docs.google.com/forms/d/e/1FAIpQLSeqNSz975pjRQkkBi3z899RsckA9tf-KsXVkZxZOg_p8kAm8A/viewform?usp=dialog"
+                      href="https://forms.gle/ARB8oVTAN8XgAju17"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="paper-btn paper-btn--report"
