@@ -4,6 +4,8 @@
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import Navbar from "@/components/layout/Navbar";
+import ThemedLogo from "@/components/ui/ThemedLogo";
 import { fetchCoursesWithCounts } from "@/lib/course-service";
 
 interface CourseItem {
@@ -13,7 +15,15 @@ interface CourseItem {
 }
 
 export default function Home() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] = useState<"light" | "dark">(() => {
+    if (typeof document === "undefined") return "light";
+    const savedTheme = (typeof window !== "undefined" &&
+      localStorage.getItem("theme")) as "light" | "dark" | null;
+    return (
+      savedTheme ||
+      (document.documentElement.dataset.theme === "dark" ? "dark" : "light")
+    );
+  });
 
   // Courses catalog for search - only courses present in the database
   const [courses, setCourses] = useState<CourseItem[]>([]);
@@ -34,11 +44,8 @@ export default function Home() {
     const targetTheme =
       savedTheme ||
       (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-    if (targetTheme !== "light") {
-      queueMicrotask(() => {
-        document.documentElement.dataset.theme = targetTheme;
-        setTheme(targetTheme);
-      });
+    if (!document.documentElement.dataset.theme) {
+      document.documentElement.dataset.theme = targetTheme;
     }
   }, []);
 
@@ -48,6 +55,7 @@ export default function Home() {
     document.documentElement.dataset.theme = newTheme;
     if (typeof window !== "undefined") {
       localStorage.setItem("theme", newTheme);
+      window.dispatchEvent(new CustomEvent("themechange", { detail: newTheme }));
     }
   };
 
@@ -282,53 +290,7 @@ export default function Home() {
         </defs>
       </svg>
 
-      <header className="nav">
-        <a className="brand" href="#top">
-          <Image
-            src="/prepninja-logo.png"
-            alt="PrepNinja"
-            width={153}
-            height={30}
-            className="brand-logo-img"
-            priority
-          />
-        </a>
-        <nav className="links" aria-label="Primary">
-          <a className="on" href="#top" aria-current="page"><svg className="i"><use href="#home" /></svg>Home</a>
-          <Link href="/practice"><svg className="i"><use href="#book" /></svg>Practice Questions</Link>
-          <Link href="/papers"><svg className="i"><use href="#file" /></svg>Papers</Link>
-          <Link href="/syllabus"><svg className="i"><use href="#marked" /></svg>Syllabus</Link>
-        </nav>
-        <div className="ctrl">
-          <button
-            className="toggle"
-            id="theme"
-            role="switch"
-            aria-checked={theme === "dark"}
-            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
-            onClick={toggleTheme}
-          >
-            <span className="rings"></span>
-            <svg className="clouds" viewBox="0 0 64 32" aria-hidden="true">
-              <path fill="#b9dcf2" d="M34 32c0-3 2.500-5 5-4.200 1-3.300 5.500-4.800 8-2.200 2.300-2.500 6.500-2 7.800 1 2.500-.3 5 1.500 5.200 4.200V32z" />
-              <path fill="#effaff" d="M26 32c0-3.500 3-6 6.500-5 1.500-4 7-5.500 10-2.200 2.500-3 8-2.500 9.500 1.200 3.500-.5 6 1.500 6.500 6z" />
-            </svg>
-            <svg className="stars" viewBox="0 0 64 32" fill="#fff" aria-hidden="true">
-              <path transform="translate(9 9) scale(1.1)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <path transform="translate(17 6) scale(0.8)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <path transform="translate(7 21) scale(0.9)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <path transform="translate(15 25) scale(1)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <path transform="translate(22 15) scale(0.6)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <path transform="translate(24 27) scale(0.5)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <path transform="translate(27 7) scale(0.5)" d="M0-3 .8-.8 3 0 .8 .8 0 3-.8 .8-3 0-.8-.8z" />
-              <circle cx="4" cy="14" r=".6" />
-              <circle cx="12" cy="17" r=".5" />
-              <circle cx="20" cy="22" r=".5" />
-            </svg>
-            <span className="knob"><i className="sun"></i><i className="moon"></i></span>
-          </button>
-        </div>
-      </header>
+      <Navbar theme={theme} onToggleTheme={toggleTheme} />
 
       <main id="top">
         <section className="hero">
@@ -758,9 +720,7 @@ export default function Home() {
             <h2>
               <span className="why-heading-content">
                 Why{" "}
-                <Image
-                  src="/prepninja-logo.png"
-                  alt="PrepNinja"
+                <ThemedLogo
                   width={276}
                   height={54}
                   className="why-logo-img"
@@ -824,26 +784,15 @@ export default function Home() {
                 <div className="stat"><b className="grad">1</b><span>Campuses</span></div>
               </div>
             </div>
-            <div className="illus rv" aria-hidden="true">
+            <div className="illus rv">
               <div className="glow"></div>
-              <div className="card c1"></div>
-              <div className="card c2"></div>
-              <div className="card c3">
-                <div className="m"><span className="q">?</span>TOPIC PRACTICE</div>
-                <div style={{ marginTop: "16px" }}>
-                  <div className="ln" style={{ width: "175px", opacity: ".6" }}></div>
-                  <div className="ln" style={{ width: "153px", opacity: ".3" }}></div>
-                  <div className="ln" style={{ width: "112px", opacity: ".15" }}></div>
-                </div>
-                <div style={{ marginTop: "16px", display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ width: "22px", height: "22px", borderRadius: "50%", background: "#43c99b" }}></span>
-                  <div className="ln" style={{ width: "112px", height: "4px", margin: "0", background: "#43c99b", opacity: ".65" }}></div>
-                </div>
-              </div>
-              <span className="tag" style={{ "--c": "#5595ff", left: "33px", top: "35px" } as React.CSSProperties}>CAT 1</span>
-              <span className="tag" style={{ "--c": "#43cde4", left: "262px", top: "79px", animationDelay: "-2s" } as React.CSSProperties}>Slot A1</span>
-              <span className="tag" style={{ "--c": "#e885b9", left: "267px", top: "351px", animationDelay: "-4s" } as React.CSSProperties}>HOTS</span>
-              <span className="tag" style={{ "--c": "#a183ff", left: "84px", top: "374px", animationDelay: "-1s" } as React.CSSProperties}>Module 3</span>
+              <Image
+                src="/ninja-mascot.png"
+                alt="PrepNinja"
+                width={420}
+                height={420}
+                className="ninja-mascot-img"
+              />
             </div>
           </div>
         </section>
@@ -888,13 +837,7 @@ export default function Home() {
               </div>
               <div className="mid">
                 <div className="brand">
-                  <Image
-                    src="/prepninja-logo.png"
-                    alt="PrepNinja"
-                    width={122}
-                    height={24}
-                    className="brand-logo-img"
-                  />
+                  <ThemedLogo width={122} height={24} />
                 </div>
                 <div className="fl">
                   <Link href="/privacy">Privacy</Link>

@@ -1,10 +1,10 @@
 /* this is navbar.tsx */
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
+import ThemedLogo from "@/components/ui/ThemedLogo";
 
 export interface NavbarProps {
   theme?: "light" | "dark";
@@ -15,8 +15,17 @@ export default function Navbar({
   theme: externalTheme,
   onToggleTheme,
 }: NavbarProps = {}) {
-  const [internalTheme, setInternalTheme] = useState<"light" | "dark">("light");
+  const [internalTheme, setInternalTheme] = useState<"light" | "dark">(() => {
+    if (typeof document === "undefined") return "light";
+    const savedTheme = (typeof window !== "undefined" && localStorage.getItem("theme")) as
+      | "light"
+      | "dark"
+      | null;
+    return savedTheme || (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+  });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const savedTheme = (typeof window !== "undefined" && localStorage.getItem("theme")) as
@@ -24,13 +33,49 @@ export default function Navbar({
       | "dark"
       | null;
     const targetTheme = savedTheme || (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-    if (targetTheme !== "light") {
-      queueMicrotask(() => {
-        document.documentElement.dataset.theme = targetTheme;
-        setInternalTheme(targetTheme);
-      });
+    if (!document.documentElement.dataset.theme) {
+      document.documentElement.dataset.theme = targetTheme;
     }
   }, []);
+
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setIsMenuOpen(false);
+  }
+
+  // Handle outside click, escape key, and resize when menu is open
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth > 820) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isMenuOpen]);
 
   const currentTheme = externalTheme ?? internalTheme;
 
@@ -43,6 +88,7 @@ export default function Navbar({
       document.documentElement.dataset.theme = nextTheme;
       if (typeof window !== "undefined") {
         localStorage.setItem("theme", nextTheme);
+        window.dispatchEvent(new CustomEvent("themechange", { detail: nextTheme }));
       }
     }
   };
@@ -53,16 +99,9 @@ export default function Navbar({
   const isSyllabus = pathname === "/syllabus" || pathname.startsWith("/syllabus/");
 
   return (
-    <header className="nav">
+    <header className="nav" ref={navRef}>
       <Link className="brand" href={isHome ? "#top" : "/"}>
-        <Image
-          src="/prepninja-logo.png"
-          alt="PrepNinja"
-          width={153}
-          height={30}
-          className="brand-logo-img"
-          priority
-        />
+        <ThemedLogo width={153} height={30} priority />
       </Link>
       <nav className="links" aria-label="Primary">
         <Link
@@ -164,7 +203,101 @@ export default function Navbar({
             <i className="moon"></i>
           </span>
         </button>
+        <button
+          className="menu-btn"
+          type="button"
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isMenuOpen}
+          aria-controls="mobile-nav-menu"
+          onClick={() => setIsMenuOpen((prev) => !prev)}
+        >
+          {isMenuOpen ? (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          ) : (
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="4" y1="6" x2="20" y2="6" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="18" x2="20" y2="18" />
+            </svg>
+          )}
+        </button>
       </div>
+
+      {isMenuOpen && (
+        <nav
+          className="mobile-menu"
+          id="mobile-nav-menu"
+          aria-label="Mobile Navigation"
+        >
+          <Link
+            className={isHome ? "on" : ""}
+            href={isHome ? "#top" : "/"}
+            aria-current={isHome ? "page" : undefined}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <svg className="i">
+              <use href="#home" />
+            </svg>
+            Home
+          </Link>
+          <Link
+            className={isPractice ? "on" : ""}
+            href="/practice"
+            aria-current={isPractice ? "page" : undefined}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <svg className="i">
+              <use href="#book" />
+            </svg>
+            Practice Questions
+          </Link>
+          <Link
+            className={isPapers ? "on" : ""}
+            href="/papers"
+            aria-current={isPapers ? "page" : undefined}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <svg className="i">
+              <use href="#file" />
+            </svg>
+            Papers
+          </Link>
+          <Link
+            className={isSyllabus ? "on" : ""}
+            href="/syllabus"
+            aria-current={isSyllabus ? "page" : undefined}
+            onClick={() => setIsMenuOpen(false)}
+          >
+            <svg className="i">
+              <use href="#marked" />
+            </svg>
+            Syllabus
+          </Link>
+        </nav>
+      )}
     </header>
   );
 }

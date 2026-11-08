@@ -3,7 +3,7 @@
 
 import React, { useEffect, useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import ThemedLogo from "@/components/ui/ThemedLogo";
 
 export interface FooterProps {
   showCreator?: boolean;
@@ -52,13 +52,7 @@ export default function Footer({ showCreator = true }: FooterProps) {
         </div>
         <div className="mid">
           <div className="brand">
-            <Image
-              src="/prepninja-logo.png"
-              alt="PrepNinja"
-              width={122}
-              height={24}
-              className="brand-logo-img"
-            />
+            <ThemedLogo width={122} height={24} />
           </div>
           <div className="fl">
             <Link href="/privacy">Privacy</Link>
