@@ -147,7 +147,7 @@ a{color:inherit;text-decoration:none}
 .marq .row::before,.marq .row::after{content:"";position:absolute;top:0;bottom:0;width:64px;z-index:1;pointer-events:none}
 .marq .row::before{left:0;background:linear-gradient(90deg,var(--fade),transparent)}
 .marq .row::after{right:0;background:linear-gradient(270deg,var(--fade),transparent)}
-.marq .track{position:absolute;top:4px;display:flex;gap:16px;width:max-content;animation:scroll 40s linear infinite}
+.marq .track{position:absolute;top:4px;display:flex;gap:16px;width:max-content;animation:scroll 120s linear infinite}
 .marq .row.rev .track{animation-direction:reverse}
 .marq:hover .track{animation-play-state:paused}
 @keyframes scroll{to{transform:translateX(-50%)}}
@@ -742,7 +742,7 @@ footer{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12p
 .marquee .track {
   display: flex;
   width: max-content;
-  animation: marquee 60s linear infinite;
+  animation: marquee 120s linear infinite;
 }
 .marquee .row--reverse .track {
   animation-direction: reverse;
