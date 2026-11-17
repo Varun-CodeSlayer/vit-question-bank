@@ -779,9 +779,9 @@ export default function Home() {
                 <p>Practise question by question, then switch to full-paper downloads for exam-style prep.</p>
               </div>
               <div className="stats">
-                <div className="stat"><b className="grad">200+</b><span>Questions tagged</span></div>
+                <div className="stat"><b className="grad">500+</b><span>Questions tagged</span></div>
                 <div className="stat"><b className="grad">50+</b><span>Courses</span></div>
-                <div className="stat"><b className="grad">1</b><span>Campuses</span></div>
+                <div className="stat"><b className="grad stat-text-val">Chennai &amp; Vellore</b><span>Campuses</span></div>
               </div>
             </div>
             <div className="illus rv">
